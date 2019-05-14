@@ -4,6 +4,8 @@
 	* customizable pointers
 	* block the tab function maybe?? it's been a godsend for testing my hitbox shapes but for the player, this is a game about exploring, maybe i want them to go "ohhh i could click the window the whole time?"
 	* anything more complex than the lamp trick i pulled is gonna require actual variables
+	* development tools
+	* option to override back button option to provide an ovedrride transition
 * Sounds
 	* clean looping
 	* ability to play multiple tracks (ie, music and bird sfx) at the same time
@@ -14,3 +16,5 @@
 * Coding practices
 	* Use jQuery binds instead of href="javascript:function(args)"
 	* "Compatibility Mode" for running in mega-old browsers? Not essential at all.
+	* Define resource paths in meta for stuff like demo/img
+	* Preload adjacent rooms, possibly even keep them in the DOM to avoid the "blink" between rooms
