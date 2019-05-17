@@ -11,12 +11,12 @@ var adventure = {
             'map'   :   {
                 'stairs'    :   {
                     'area'      :   {'shape' : 'poly', 'coords' : '220,0,390,110,485,105,400,0'},
-                    'hover'     :   {'cursor' : 'movement'},
+                    'hover'     :   {'cursor' : 'move'},
                     'click'     :   {'go' : 'upstairs'}
                 },
                 'door'      :   {
                     'area'      :   {'shape' : 'rect', 'coords' : '577,187,695,434'},
-                    'hover'     :   {'cursor' : 'movement'},
+                    'hover'     :   {'cursor' : 'move'},
                     'click'     :   {'go' : 'outside'}
                 }
             }
@@ -26,7 +26,7 @@ var adventure = {
             'map'   :   {
                 'stairs'  :   {
                     'area'      :   {'shape' : 'rect', 'coords' : '510,440,800,600'},
-                    'hover'     :   {'cursor' : 'movement'},
+                    'hover'     :   {'cursor' : 'move'},
                     'click'     :   {'go' : 'foyer'}
                 }
             }
@@ -36,7 +36,7 @@ var adventure = {
             'map'   :   {
                 'door'  :   {
                     'area'      :   {'shape' : 'rect', 'coords' : '300,170,350,330'},
-                    'hover'     :   {'cursor' : 'movement'},
+                    'hover'     :   {'cursor' : 'move'},
                     'click'     :   {'go' : 'foyer'}
                 }
             }

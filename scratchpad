@@ -1,0 +1,25 @@
+
+
+Configurable paths?
+'paths'   :   {
+    'root'  :   'data',
+    'img'   :   'img',
+    'bgm'   :   'bgm',
+    'gfx'   :   'gfx',
+    'sfx'   :   'sfx'
+},
+function pathTo(resource) {
+    //blahblahblah
+}
+
+
+
+
+
+
+
+function hoverHandler(e) {
+    debug('hoverHandler was called!')
+    debug(e.data);
+    debug('Hover doesn\'t actually do anything yet.');
+}
