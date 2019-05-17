@@ -1,0 +1,13 @@
+
+
+Configurable paths?
+'paths'   :   {
+    'root'  :   'data',
+    'img'   :   'img',
+    'bgm'   :   'bgm',
+    'gfx'   :   'gfx',
+    'sfx'   :   'sfx'
+},
+function pathTo(resource) {
+    //blahblahblah
+}
