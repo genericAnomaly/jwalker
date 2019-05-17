@@ -17,16 +17,47 @@ function getHref(object) {
 
 
 
+function go(id) {
+    debug('go(' + id + ') called');
+    debug(id);
+}
+
+
+function clickHandler(e) {
+    debug('clickHandler was called!')
+    debug(e.data);
+    var click = e.data;
+    if ('go' in click) {
+        debug('Click contains a \'go\' directive!');
+        go(click.go);
+    }
+}
 
 
 
 function buildRoom(id) {
     var room = adventure.rooms[id];
-    var img = '<img src="img/'+room.img+'" usemap="#'+id+'_map" />';
-    var map = '<map name="'+id+'_map">';
-    for (var map_id in room.map){
-        map += '<area id="'+id+'_'+map_id+'" shape="'+room.map[map_id].area.shape+'" coords="'+room.map[map_id].area.coords+'" '+getHref(room.map[map_id].click)+' >';
+    var img = $('<img src="img/'+room.img+'" usemap="#'+id+'_map" />');
+    //var map = $('<map name="'+id+'_map"></map>');
+    var map = $('<map></map>').attr('name', id+'_map');
+    for (var hotspot_id in room.map){
+        var hotspot = room.map[hotspot_id];
+        var area = $('<area id="'+id+'_'+hotspot_id+'" shape="'+hotspot.area.shape+'" coords="'+hotspot.area.coords+'" />');
+        if ('click' in hotspot) {
+            area.click(hotspot.click, clickHandler);
+        }
+        map.append(area);
     }
-    map += '</map>';
-    document.getElementById('room').innerHTML = img + map;
+
+    //document.getElementById('room').innerHTML = img + map;
+    $('#room').html(img);
+    $('#room').append(map);
+}
+
+
+
+
+const DEBUG = true;
+function debug(object) {
+    if (DEBUG) console.log(object);
 }
