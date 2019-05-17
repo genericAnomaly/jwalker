@@ -20,6 +20,8 @@ function getHref(object) {
 function go(id) {
     debug('go(' + id + ') called');
     debug(id);
+    div = buildRoom(id);
+    $('#room').empty().append(div);
 }
 
 
@@ -52,13 +54,17 @@ function buildRoom(id) {
             area.click(hotspot.click, clickHandler);
         }
         if ('hover' in hotspot) {
-            //
+            //May or may not keep this, any heavy duty mouseover functionality will probs need both mouseEnter and mouseLeave. Definitely would be cleaner to migrate pointers to CSS classes defined and assigned in the aventure object.
+            if ('cursor' in hotspot.hover) {
+                area.css('cursor', hotspot.hover.cursor);
+            }
         }
         map.append(area);
     }
-
-    $('#room').html(img);
-    $('#room').append(map);
+    var div = $('<div></div>')
+        .append(img)
+        .append(map);
+    return div;
 }
 
 
