@@ -37,19 +37,26 @@ function clickHandler(e) {
 
 function buildRoom(id) {
     var room = adventure.rooms[id];
-    var img = $('<img src="img/'+room.img+'" usemap="#'+id+'_map" />');
-    //var map = $('<map name="'+id+'_map"></map>');
-    var map = $('<map></map>').attr('name', id+'_map');
+    var img = $('<img>')
+        .attr('src', 'img/'+room.img)
+        .attr('usemap', '#'+id+'_map');
+    var map = $('<map></map>')
+        .attr('name', id+'_map');
     for (var hotspot_id in room.map){
         var hotspot = room.map[hotspot_id];
-        var area = $('<area id="'+id+'_'+hotspot_id+'" shape="'+hotspot.area.shape+'" coords="'+hotspot.area.coords+'" />');
+        var area = $('<area>')
+            .attr('id', id+'_'+hotspot_id)
+            .attr('shape', hotspot.area.shape)
+            .attr('coords', hotspot.area.coords);
         if ('click' in hotspot) {
             area.click(hotspot.click, clickHandler);
+        }
+        if ('hover' in hotspot) {
+            //
         }
         map.append(area);
     }
 
-    //document.getElementById('room').innerHTML = img + map;
     $('#room').html(img);
     $('#room').append(map);
 }
