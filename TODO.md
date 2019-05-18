@@ -6,8 +6,8 @@
 	* ~~HUD text pop-up event~~, or just a hovering image in general.
 	* ~~customizable pointers~~
 	* ~~PROPER class-based customizable pointers~~
-		* I sketched some hella sweet retro cursors for this for now
-	* prevent players from using the tab functionality to find hotspots
+		* *I sketched some hella sweet retro cursors for this for now*
+	* ~~prevent players from using the tab functionality to find hotspots~~
 	* anything more complex than the lamp trick i pulled is gonna require actual variables
 	* development tools
 * Sounds
