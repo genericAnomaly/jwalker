@@ -1,3 +1,5 @@
+var time;
+
 function go(id) {
     debug('go(' + id + ') called');
     debug(id);
@@ -16,10 +18,14 @@ function text(args) {
         .html(args.string)
         .data('ttl', 5000)
         .attr('x', '1em')
-        .attr('y', '1em');
+        .attr('y', '1.5em');
 }
 
 
+function start() {
+    go(adventure.meta.start);
+    window.requestAnimationFrame(onAnimationFrameHandler);
+}
 
 
 function clickHandler(e) {
@@ -34,6 +40,26 @@ function clickHandler(e) {
         debug('Click contains a \'text\' directive!');
         text(click.text);
     }
+}
+function onAnimationFrameHandler(ts) {
+    //OH THE MEMORIIIIIIES
+    if (!time) time = ts;
+    var deltaTime = ts-time;
+    time = ts;
+
+    $('#overlay_svg').find('text').each(function (index, value) {
+        var t = $(this);
+        var ttl = t.data('ttl') - deltaTime;
+        t.data('ttl', ttl);
+        if (ttl < 2000) {
+                t.css('opacity', ttl/2000);
+        }
+        if (ttl < 0) {
+            t.remove();
+        }
+    });
+
+    window.requestAnimationFrame(onAnimationFrameHandler);
 }
 
 
