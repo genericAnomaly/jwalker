@@ -4,7 +4,6 @@ var adventure = {
         'name'      :   'Dennis Quest',
         'author'    :   'Dennis',
         'start'     :   'foyer',
-        'screen'    :   {'width' : '800px', 'height' : '600px'}
     },
     'rooms'   :   {
         'foyer' :   {

@@ -15,9 +15,6 @@ function go(id) {
 }
 
 function text(args) {
-    //args.string  :  <text to display>
-    //Possible TODO: args.class   :  <class to apply to text>
-
     var svg = document.getElementById('overlay_svg');
     var t = document.createElementNS(svg.namespaceURI, 'text');
     svg.appendChild(t);
@@ -27,6 +24,7 @@ function text(args) {
         .data('ttl', 5000)
         .attr('x', '1em')
         .attr('y', '1.5em');
+    //TODO: functionality to read in attributes like args.class
 }
 
 //Event handlers
