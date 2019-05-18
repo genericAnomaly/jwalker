@@ -1,3 +1,12 @@
+var time;
+
+//Big Red Button
+function start() {
+    go(adventure.meta.start);
+    window.requestAnimationFrame(onAnimationFrameHandler);
+}
+
+//Click event functions
 function go(id) {
     debug('go(' + id + ') called');
     debug(id);
@@ -5,7 +14,22 @@ function go(id) {
     $('#room').empty().append(div);
 }
 
+function text(args) {
+    //args.string  :  <text to display>
+    //Possible TODO: args.class   :  <class to apply to text>
 
+    var svg = document.getElementById('overlay_svg');
+    var t = document.createElementNS(svg.namespaceURI, 'text');
+    svg.appendChild(t);
+
+    t = $(t)
+        .html(args.string)
+        .data('ttl', 5000)
+        .attr('x', '1em')
+        .attr('y', '1.5em');
+}
+
+//Event handlers
 function clickHandler(e) {
     debug('clickHandler was called!')
     debug(e.data);
@@ -14,6 +38,30 @@ function clickHandler(e) {
         debug('Click contains a \'go\' directive!');
         go(click.go);
     }
+    if ('text' in click) {
+        debug('Click contains a \'text\' directive!');
+        text(click.text);
+    }
+}
+function onAnimationFrameHandler(ts) {
+    //OH THE MEMORIIIIIIES
+    if (!time) time = ts;
+    var deltaTime = ts-time;
+    time = ts;
+
+    $('#overlay_svg').find('text').each(function (index, value) {
+        var t = $(this);
+        var ttl = t.data('ttl') - deltaTime;
+        t.data('ttl', ttl);
+        if (ttl < 1200) {
+                t.css('opacity', ttl/1200);
+        }
+        if (ttl < 0) {
+            t.remove();
+        }
+    });
+
+    window.requestAnimationFrame(onAnimationFrameHandler);
 }
 
 

@@ -3,7 +3,8 @@ var adventure = {
         /* Stuff defining the adventure will probably go here */
         'name'      :   'Dennis Quest',
         'author'    :   'Dennis',
-        'start'     :   'foyer'
+        'start'     :   'foyer',
+        'screen'    :   {'width' : '800px', 'height' : '600px'}
     },
     'rooms'   :   {
         'foyer' :   {
@@ -54,6 +55,12 @@ var adventure = {
                 'back'  :   {
                     'area'      :   {'shape' : 'rect', 'coords' : '0, 550, 800, 600', 'class' : 'arrow-s'},
                     'click'     :   {'go' : 'upstairs'}
+                },
+                'skull'  :   {
+                    'area'      :   {'shape' : 'circle', 'coords' : '62,425,27', 'class' : 'action-examine'},
+                    'click'     :   {
+                        'text' : {'string'    : 'Smells like wet cat...'}
+                    }
                 }
             }
         },

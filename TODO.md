@@ -3,7 +3,7 @@
 * Features
 	* a dedicated back button that sends you back to the previous place you were, since it turns out it's hard to find pictures with at least one entrance and exit in-photo
 		* per-room option to override back button with a custom click object.
-	* HUD text pop-up event, or just a hovering image in general.
+	* ~~HUD text pop-up event~~, or just a hovering image in general.
 	* ~~customizable pointers~~
 	* ~~PROPER class-based customizable pointers~~
 		* I sketched some hella sweet retro cursors for this for now
