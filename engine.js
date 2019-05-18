@@ -1,14 +1,22 @@
 var time;
 
+//Big Red Button
+function start() {
+    go(adventure.meta.start);
+    window.requestAnimationFrame(onAnimationFrameHandler);
+}
+
+//Click event functions
 function go(id) {
     debug('go(' + id + ') called');
     debug(id);
     div = buildRoom(id);
     $('#room').empty().append(div);
 }
+
 function text(args) {
     //args.string  :  <text to display>
-    //TODO: args.class   :  <class to apply to text>
+    //Possible TODO: args.class   :  <class to apply to text>
 
     var svg = document.getElementById('overlay_svg');
     var t = document.createElementNS(svg.namespaceURI, 'text');
@@ -21,13 +29,7 @@ function text(args) {
         .attr('y', '1.5em');
 }
 
-
-function start() {
-    go(adventure.meta.start);
-    window.requestAnimationFrame(onAnimationFrameHandler);
-}
-
-
+//Event handlers
 function clickHandler(e) {
     debug('clickHandler was called!')
     debug(e.data);
@@ -51,8 +53,8 @@ function onAnimationFrameHandler(ts) {
         var t = $(this);
         var ttl = t.data('ttl') - deltaTime;
         t.data('ttl', ttl);
-        if (ttl < 2000) {
-                t.css('opacity', ttl/2000);
+        if (ttl < 1200) {
+                t.css('opacity', ttl/1200);
         }
         if (ttl < 0) {
             t.remove();
