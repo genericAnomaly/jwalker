@@ -79,7 +79,8 @@ function buildRoom(id) {
             .attr('id', id+'_'+hotspot_id)
             .attr('shape', hotspot.area.shape)
             .attr('coords', hotspot.area.coords)
-            .attr('class', hotspot.area.class);
+            .attr('class', hotspot.area.class)
+            .attr('tabindex', -1);
         if ('click' in hotspot) {
             area.click(hotspot.click, clickHandler);
         }

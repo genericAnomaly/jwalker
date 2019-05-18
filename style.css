@@ -6,6 +6,12 @@
 .arrow-d {cursor: url(gfx/cursor/arrow-d.png) 20 45, s-resize;}
 .action-examine {cursor: zoom-in;}
 
+#adventure * {
+	user-select: none;
+	-webkit-user-select: none; /* Safari 3.1+ */
+	-moz-user-select: none; /* Firefox 2+ */
+	-ms-user-select: none; /* IE 10+ */
+}
 
 #overlay {
     position: fixed;
