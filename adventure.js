@@ -33,6 +33,26 @@ var adventure = {
                     'area'      :   {'shape' : 'poly', 'coords' : '170,23,391,17,395,106,246,107', 'class' : 'arrow-u'},
                     'hover'     :   {'cursor' : 'move'},
                     'click'     :   {'go' : 'attic'}
+                },
+                'door-w'  :   {
+                	'area'      :   {'shape' : 'rect', 'coords' : '243,186,265,438', 'class' : 'arrow-w'},
+                	'hover'     :   {'cursor' : 'move'},
+                	'click'     :   {'go' : 'outside'}
+                },
+                'door-e'  :   {
+                	'area'      :   {'shape' : 'rect', 'coords' : '563,204,588,418', 'class' : 'arrow-e'},
+                	'hover'     :   {'cursor' : 'move'},
+                	'click'     :   {'go' : 'outside'}
+                },
+                'door-n'  :   {
+                	'area'      :   {'shape' : 'rect', 'coords' : '376,216,458,408', 'class' : 'arrow-n'},
+                	'hover'     :   {'cursor' : 'move'},
+                	'click'     :   {'go' : 'outside'}
+                },
+                'backwards'  :   {
+                	'area'      :   {'shape' : 'rect', 'coords' : '0,550,488,600', 'class' : 'arrow-s'},
+                	'hover'     :   {'cursor' : 'move'},
+                	'click'     :   {'go' : 'outside'}
                 }
             }
         },
