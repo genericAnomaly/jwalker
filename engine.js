@@ -4,6 +4,22 @@ function go(id) {
     div = buildRoom(id);
     $('#room').empty().append(div);
 }
+function text(args) {
+    //args.string  :  <text to display>
+    //TODO: args.class   :  <class to apply to text>
+
+    var svg = document.getElementById('overlay_svg');
+    var t = document.createElementNS(svg.namespaceURI, 'text');
+    svg.appendChild(t);
+
+    t = $(t)
+        .html(args.string)
+        .data('ttl', 5000)
+        .attr('x', '1em')
+        .attr('y', '1em');
+}
+
+
 
 
 function clickHandler(e) {
@@ -13,6 +29,10 @@ function clickHandler(e) {
     if ('go' in click) {
         debug('Click contains a \'go\' directive!');
         go(click.go);
+    }
+    if ('text' in click) {
+        debug('Click contains a \'text\' directive!');
+        text(click.text);
     }
 }
 

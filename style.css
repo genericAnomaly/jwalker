@@ -4,6 +4,7 @@
 .arrow-w {cursor: url(gfx/cursor/arrow-w.png) 3 20, w-resize;}
 .arrow-u {cursor: url(gfx/cursor/arrow-u.png) 20 3, n-resize;}
 .arrow-d {cursor: url(gfx/cursor/arrow-d.png) 20 45, s-resize;}
+.action-examine {cursor: zoom-in;}
 
 
 #overlay {

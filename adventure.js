@@ -55,6 +55,12 @@ var adventure = {
                 'back'  :   {
                     'area'      :   {'shape' : 'rect', 'coords' : '0, 550, 800, 600', 'class' : 'arrow-s'},
                     'click'     :   {'go' : 'upstairs'}
+                },
+                'skull'  :   {
+                    'area'      :   {'shape' : 'circle', 'coords' : '62,425,27', 'class' : 'action-examine'},
+                    'click'     :   {
+                        'text' : {'string'    : 'Smells like wet cat...'}
+                    }
                 }
             }
         },
