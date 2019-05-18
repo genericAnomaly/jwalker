@@ -3,7 +3,8 @@ var adventure = {
         /* Stuff defining the adventure will probably go here */
         'name'      :   'Dennis Quest',
         'author'    :   'Dennis',
-        'start'     :   'foyer'
+        'start'     :   'foyer',
+        'screen'    :   {'width' : '800px', 'height' : '600px'}
     },
     'rooms'   :   {
         'foyer' :   {
