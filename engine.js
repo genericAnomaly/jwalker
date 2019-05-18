@@ -30,15 +30,10 @@ function buildRoom(id) {
         var area = $('<area>')
             .attr('id', id+'_'+hotspot_id)
             .attr('shape', hotspot.area.shape)
-            .attr('coords', hotspot.area.coords);
+            .attr('coords', hotspot.area.coords)
+            .attr('class', hotspot.area.class);
         if ('click' in hotspot) {
             area.click(hotspot.click, clickHandler);
-        }
-        if ('hover' in hotspot) {
-            //May or may not keep this, any heavy duty mouseover functionality will probs need both mouseEnter and mouseLeave. Definitely would be cleaner to migrate pointers to CSS classes defined and assigned in the aventure object.
-            if ('cursor' in hotspot.hover) {
-                area.css('cursor', hotspot.hover.cursor);
-            }
         }
         map.append(area);
     }
