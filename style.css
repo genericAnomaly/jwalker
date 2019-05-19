@@ -8,6 +8,12 @@
 
 #adventure {
 	width: 100%;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	display: flex;
+	justify-content: center;
 }
 #room * {
 	user-select: none;
@@ -33,13 +39,7 @@
 	font-family: 'Times New Roman', serif;
 }
 
-#adventure {
-	position: absolute;
-	left: 50%;
-	top: 50%;
-	transform: translate(-50%, -50%);
-	display: flex;
-}
+
 #room img {
 	display: block;
 }
