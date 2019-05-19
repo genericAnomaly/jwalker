@@ -4,7 +4,7 @@
 * adventure editor/toolkit [see below]
 * Function to preload all resources before starting the game.
 
-##Authoring tools
+## Authoring tools
 * Thumbnail all rooms into toggle-able sidebar
 	* textbox insta-filter for finding by id *quickly*
 * "Editor" room view

@@ -1,7 +1,13 @@
 var time;
+var editorMode = true;
 
 //Big Red Button
 function start() {
+    if (editorMode) {
+        for (var id in adventure.rooms) {
+            //put them in the thumbnails panel
+        }
+    }
     go(adventure.meta.start);
     window.requestAnimationFrame(onAnimationFrameHandler);
 }

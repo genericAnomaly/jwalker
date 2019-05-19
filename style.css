@@ -35,7 +35,12 @@
 	left: 50%;
 	top: 50%;
 	transform: translate(-50%, -50%);
+	display: flex;
 }
+#room img {
+	display: block;
+}
+
 
 * {
 	box-sizing: border-box;
@@ -43,3 +48,40 @@
 body {
 	background: #000;
 }
+
+
+#editor-roomlist {
+	order: -1;
+}
+#editor-properties {
+
+}
+
+[id^=editor] {
+	border: 0.5em solid #fff;
+	padding: 0em 1em;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*  */
