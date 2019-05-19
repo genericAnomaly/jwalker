@@ -25,8 +25,6 @@ function start() {
 
 //Click event functions
 function go(id) {
-    debug('go(' + id + ') called');
-    debug(id);
     div = buildRoom(id);
     $('#room').empty().append(div);
 }
@@ -46,15 +44,11 @@ function text(args) {
 
 //Event handlers
 function clickHandler(e) {
-    debug('clickHandler was called!')
-    debug(e.data);
     var click = e.data;
     if ('go' in click) {
-        debug('Click contains a \'go\' directive!');
         go(click.go);
     }
     if ('text' in click) {
-        debug('Click contains a \'text\' directive!');
         text(click.text);
     }
 }
