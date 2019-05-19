@@ -9,7 +9,7 @@
 #adventure {
 	width: 100%;
 }
-#adventure * {
+#room * {
 	user-select: none;
 	-webkit-user-select: none; /* Safari 3.1+ */
 	-moz-user-select: none; /* Firefox 2+ */
@@ -53,6 +53,13 @@ body {
 }
 
 
+
+/*Editor*/
+
+
+
+
+
 #editor-roomlist {
 	order: -1;
 	flex-grow: 1;
@@ -65,19 +72,57 @@ body {
 }
 #roomlist-panel li {
 	list-style: none;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	cursor: pointer;
 }
 #roomlist-panel li img {
 	width: 100%;
 	max-width: 120px;
 }
+#roomlist-panel li span {
+	margin: 0.5em;
+	padding: 0em 0.5em;
+	background: #0ff;
+	color: #000;
+}
+#roomlist-panel li:hover span {
+	background: #f0f;
+}
 #editor-properties {
 	flex-grow: 1;
 }
+#editor-properties input {
+	background: #000;
+	border: 0.25em solid #fff;
+	color: #fff;
+	font-family: monospace;
+	font-size: large;
+}
+#editor-properties button {
+	border: none;
+	background: black;
+	color: #fff;
+	font-family: monospace;
+	font-size: large;
+	padding: 0em 1em;
+	color: #0ff;
+}
+#editor-properties button:hover{
+	color: #f0f;
+}
+
+
 
 [id^=editor] {
 	border: 0.5em solid #fff;
 	padding: 0em 1em;
 	margin: 1em;
+	color: #fff;
+	/*font-family: 'Press Start 2P', monospace;*/
+	font-family: monospace;
+	font-size: large;
 }
 
 

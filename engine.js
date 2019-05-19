@@ -3,21 +3,28 @@ var editorMode = true;
 
 //Big Red Button
 function start() {
-    if (editorMode) {
-        for (var id in adventure.rooms) {
-            var img = $('<img>')
-                .attr('src', 'img/' + adventure.rooms[id].img)
-                .attr('alt', id)
-                .attr('id', 'thumbnail-'+id)
-                .click({'go' : id}, clickHandler);
-            var li = $('<li></li>').append(img);
-            $('#roomlist-panel').append(li);
-        }
-    }
+    if (editorMode) startEditor();
     go(adventure.meta.start);
     window.requestAnimationFrame(onAnimationFrameHandler);
 }
 
+
+
+function startEditor() {
+    for (var id in adventure.rooms) {
+        var img = $('<img>')
+            .attr('src', 'img/' + adventure.rooms[id].img)
+            .attr('alt', id)
+            .attr('id', 'thumbnail-'+id)
+            .click({'go' : id}, clickHandler);
+        var span = $('<span></span>').html(id);
+        var li = $('<li></li>')
+            .append(img)
+            .append(span);
+        $('#roomlist-panel').append(li);
+    }
+
+}
 
 
 
