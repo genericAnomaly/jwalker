@@ -6,6 +6,9 @@
 .arrow-d {cursor: url(gfx/cursor/arrow-d.png) 20 45, s-resize;}
 .action-examine {cursor: zoom-in;}
 
+#adventure {
+	width: 100%;
+}
 #adventure * {
 	user-select: none;
 	-webkit-user-select: none; /* Safari 3.1+ */
@@ -52,14 +55,29 @@ body {
 
 #editor-roomlist {
 	order: -1;
+	flex-grow: 1;
+}
+#roomlist-panel {
+	display: flex;
+	flex-direction: column;
+	overflow-y: auto;
+	padding-left: 0px;
+}
+#roomlist-panel li {
+	list-style: none;
+}
+#roomlist-panel li img {
+	width: 100%;
+	max-width: 120px;
 }
 #editor-properties {
-
+	flex-grow: 1;
 }
 
 [id^=editor] {
 	border: 0.5em solid #fff;
 	padding: 0em 1em;
+	margin: 1em;
 }
 
 

@@ -5,12 +5,23 @@ var editorMode = true;
 function start() {
     if (editorMode) {
         for (var id in adventure.rooms) {
-            //put them in the thumbnails panel
+            var img = $('<img>')
+                .attr('src', 'img/' + adventure.rooms[id].img)
+                .attr('alt', id)
+                .attr('id', 'thumbnail-'+id)
+                .click({'go' : id}, clickHandler);
+            var li = $('<li></li>').append(img);
+            $('#roomlist-panel').append(li);
         }
     }
     go(adventure.meta.start);
     window.requestAnimationFrame(onAnimationFrameHandler);
 }
+
+
+
+
+
 
 //Click event functions
 function go(id) {

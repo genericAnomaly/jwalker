@@ -11,6 +11,7 @@
 	* Represent hotspots in this mode with interactive pieces within the SVG overlay
 	* Bind hotspot movement to the corresponding values in ``hotspot.area`` directly.
 	* "Room properties" where user can edit key/id, img, add hotspots, and configure hotspots
+		* at-a-glance room states for inbound and outbound edges
 	* Modifier key or right click to "follow hotspot" in the editor
 	* Shortcut key to "create hotspot to last room"
 * Flexbox chicanery to easily change the editor's view to highlight a certain panel, if that seems necessary
