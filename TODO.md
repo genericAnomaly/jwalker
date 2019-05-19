@@ -5,7 +5,7 @@
 * Function to preload all resources before starting the game.
 
 ## Authoring tools
-* Thumbnail all rooms into toggle-able sidebar
+* ~~Thumbnail all rooms into~~ toggle-able ~~sidebar~~
 	* textbox insta-filter for finding by id *quickly*
 * "Editor" room view
 	* Represent hotspots in this mode with interactive pieces within the SVG overlay
