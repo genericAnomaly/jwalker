@@ -1,15 +1,37 @@
 var time;
+var editorMode = false;
 
 //Big Red Button
 function start() {
+    if (editorMode) startEditor();
     go(adventure.meta.start);
     window.requestAnimationFrame(onAnimationFrameHandler);
 }
 
+
+
+function startEditor() {
+    for (var id in adventure.rooms) {
+        var img = $('<img>')
+            .attr('src', 'img/' + adventure.rooms[id].img)
+            .attr('alt', id)
+            .attr('id', 'thumbnail-'+id)
+            .click({'go' : id}, clickHandler);
+        var span = $('<span></span>').html(id);
+        var li = $('<li></li>')
+            .append(img)
+            .append(span);
+        $('#roomlist-panel').append(li);
+    }
+
+}
+
+
+
+
+
 //Click event functions
 function go(id) {
-    debug('go(' + id + ') called');
-    debug(id);
     div = buildRoom(id);
     $('#room').empty().append(div);
 }
@@ -29,15 +51,11 @@ function text(args) {
 
 //Event handlers
 function clickHandler(e) {
-    debug('clickHandler was called!')
-    debug(e.data);
     var click = e.data;
     if ('go' in click) {
-        debug('Click contains a \'go\' directive!');
         go(click.go);
     }
     if ('text' in click) {
-        debug('Click contains a \'text\' directive!');
         text(click.text);
     }
 }
