@@ -15,8 +15,15 @@
     </script>
 </head>
 <body>
-    <div id="adventure">
-        <div id="room"></div>
+    <div id="main">
+        <div id="game">
+            <div id="room"></div>
+            <div id="overlay">
+                <svg id="overlay_svg" width="100%" height="100%">
+                    <g id="overlay_svg_hotspot_editor"></g>
+                </svg>
+            </div>
+        </div>
         <div id="editor-roomlist"><ul id="roomlist-panel"></ul></div>
         <div id="editor-properties">
             <br>ID: <strong>foyer</strong><button>[change]</button><br>
@@ -34,12 +41,6 @@
             ID: <strong>door</strong><button>[change]</button><br>
             Cursor: [[dropdown menu]]<br>
             Click:  <input value="{'go' : 'outside'}"<br>
-
-        </div>
-        <div id="overlay">
-            <svg id="overlay_svg" width="100%" height="100%">
-                <g id="overlay_svg_hotspot_editor"></g>
-            </svg>
         </div>
     </div>
 </body>
