@@ -130,13 +130,19 @@ body {
 
 
 
-#overlay_svg_hotspot_editor .editor-hotspot {
-	fill: rgba(0, 255, 255, 1);
+.editor-hotspot {
+	fill: rgba(0, 255, 255, 0.5);
 	stroke: #fff;
 	stroke-width: 2px;
 	stroke-dasharray: 6 4;
 	mix-blend-mode: overlay;
 }
+.editor-hotspot-handle {
+	fill: #fff;
+	stroke: #000;
+	stroke-width: 1px;
+}
+
 .editor-arrow-n {
 	/*TODO: https://stackoverflow.com/questions/13914868/using-css-approach-how-to-set-an-image-to-fill-a-path-in-svg*/
 	/*Complicated. Later.*/

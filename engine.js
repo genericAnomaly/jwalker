@@ -136,6 +136,11 @@ function editorLoadRoom(room) {
             var points = ''
             for (var i=0; i<coords.length; i+=2) {
                 points += coords[i] + ',' + coords[i+1] + ' ';
+                var handle = $(createSVGElementIn('circle', 'overlay_svg_hotspot_editor'))
+                    .attr('cx', coords[i])
+                    .attr('cy', coords[i+1])
+                    .attr('r', 5)
+                    .addClass('editor-hotspot-handle');
             }
             var area = $(createSVGElementIn('polygon', 'overlay_svg_hotspot_editor'))
                 .attr('points', points);
@@ -155,7 +160,6 @@ function createSVGElementIn(tag, parent_id) {
     var e = document.createElementNS(p.namespaceURI, tag);
     p.appendChild(e);
     return e;
-
 }
 
 
