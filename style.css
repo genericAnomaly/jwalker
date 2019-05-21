@@ -132,6 +132,9 @@ body {
 
 #overlay_svg_hotspot_editor * {
 	fill: rgba(0, 255, 255, 1);
+	stroke: #fff;
+	stroke-width: 2px;
+	stroke-dasharray: 6 4;
 	mix-blend-mode: overlay;
 }
 

@@ -117,21 +117,18 @@ function buildRoom(id) {
 
 
 function editorLoadRoom(room) {
-    //var editor = document.getElementById('overlay_svg_hotspot_editor');
     $('#overlay_svg_hotspot_editor').empty();
     for (var hotspot_id in room.map){
         var hotspot = room.map[hotspot_id];
         var coords = hotspot.area.coords.split(',');
         if (hotspot.area.shape == 'rect') {
             var area = $(createSVGElementIn('rect', 'overlay_svg_hotspot_editor'))
-                .attr('id', 'editor_' + hotspot_id)
                 .attr('x', coords[0])
                 .attr('y', coords[1])
                 .attr('width', coords[2]-coords[0])
                 .attr('height', coords[3]-coords[1]);
         } else if (hotspot.area.shape == 'circle') {
             var area = $(createSVGElementIn('circle', 'overlay_svg_hotspot_editor'))
-                .attr('id', 'editor_' + hotspot_id)
                 .attr('cx', coords[0])
                 .attr('cy', coords[1])
                 .attr('r', coords[2]);
@@ -141,10 +138,11 @@ function editorLoadRoom(room) {
                 points += coords[i] + ',' + coords[i+1] + ' ';
             }
             var area = $(createSVGElementIn('polygon', 'overlay_svg_hotspot_editor'))
-                .attr('id', 'editor_' + hotspot_id)
                 .attr('points', points);
-                debug(points);
         }
+        if (area==null) continue; //break out the loop in case of malformed hotspot
+        area.attr('id', 'editor_' + hotspot_id)
+            .data('id', hotspot_id);
     }
 }
 
