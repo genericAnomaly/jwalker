@@ -130,7 +130,10 @@ body {
 
 
 
-
+#overlay_svg_hotspot_editor * {
+	fill: rgba(0, 255, 255, 1);
+	mix-blend-mode: overlay;
+}
 
 
 
