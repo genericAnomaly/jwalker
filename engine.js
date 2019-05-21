@@ -142,7 +142,9 @@ function editorLoadRoom(room) {
         }
         if (area==null) continue; //break out the loop in case of malformed hotspot
         area.attr('id', 'editor_' + hotspot_id)
-            .data('id', hotspot_id);
+            .data('id', hotspot_id)
+            .addClass('editor-hotspot')
+            .addClass('editor-'+hotspot.area.class);
     }
 }
 
