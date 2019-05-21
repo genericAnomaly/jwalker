@@ -102,11 +102,50 @@ function buildRoom(id) {
         }
         map.append(area);
     }
+
+    if (editorMode) editorLoadRoom(room);
+
     var div = $('<div></div>')
         .append(img)
         .append(map);
     return div;
 }
+
+
+
+
+
+
+function editorLoadRoom(room) {
+    //var editor = document.getElementById('overlay_svg_hotspot_editor');
+
+    for (var hotspot_id in room.map){
+        var hotspot = room.map[hotspot_id];
+        if (hotspot.area.shape == 'rect') {
+            var coords = hotspot.area.coords.split(',');
+            var area = $(createSVGElementIn('rect', 'overlay_svg_hotspot_editor'))
+                .attr('id', 'editor_' + hotspot_id)
+                .attr('x', coords[0])
+                .attr('y', coords[1])
+                .attr('width', coords[2]-coords[0])
+                .attr('height', coords[3]-coords[1]);
+        }
+    }
+}
+
+
+
+function createSVGElementIn(tag, parent_id) {
+    var p = document.getElementById(parent_id);
+    var e = document.createElementNS(p.namespaceURI, tag);
+    p.appendChild(e);
+    return e;
+
+}
+
+
+
+
 
 
 
