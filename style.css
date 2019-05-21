@@ -145,6 +145,7 @@ body {
 	}
 }
 .editor-hotspot-handle {
+	transform: translate(-4px, -4px);
 	fill: #fff;
 	stroke: #000;
 	stroke-width: 1px;
