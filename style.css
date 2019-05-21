@@ -135,7 +135,14 @@ body {
 	stroke: #fff;
 	stroke-width: 2px;
 	stroke-dasharray: 6 4;
-	mix-blend-mode: overlay;
+	stroke-dashoffset: 0;
+	mix-blend-mode: screen;
+	animation: marching-ants 1s linear forwards infinite;
+}
+@keyframes marching-ants {
+	to {
+		stroke-dashoffset: 10;
+	}
 }
 .editor-hotspot-handle {
 	fill: #fff;

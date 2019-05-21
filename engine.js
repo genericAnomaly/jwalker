@@ -145,6 +145,7 @@ function editorLoadRoom(room) {
                     .attr('cx', coords[i])
                     .attr('cy', coords[i+1])
                     .attr('r', 5)
+                    .data('points-index', i/2)
                     .addClass('editor-hotspot-handle');
             }
             var area = $(createSVGElementIn('polygon', gid))
