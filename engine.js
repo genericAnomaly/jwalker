@@ -1,5 +1,5 @@
 var time;
-var editorMode = false;
+var editorMode = true;
 
 //Big Red Button
 function start() {
