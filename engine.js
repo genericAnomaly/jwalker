@@ -121,14 +121,19 @@ function editorLoadRoom(room) {
     for (var hotspot_id in room.map){
         var hotspot = room.map[hotspot_id];
         var coords = hotspot.area.coords.split(',');
+        //Create a group for this hotspot and its controls
+        var gid = 'editor_hotspot_'+hotspot_id
+        var g = $(createSVGElementIn('g', 'overlay_svg_hotspot_editor'))
+            .attr('id', gid);
+        //Case Switch (but it's ifs 'cos i don't care for case/switch syntax)
         if (hotspot.area.shape == 'rect') {
-            var area = $(createSVGElementIn('rect', 'overlay_svg_hotspot_editor'))
+            var area = $(createSVGElementIn('rect', gid))
                 .attr('x', coords[0])
                 .attr('y', coords[1])
                 .attr('width', coords[2]-coords[0])
                 .attr('height', coords[3]-coords[1]);
         } else if (hotspot.area.shape == 'circle') {
-            var area = $(createSVGElementIn('circle', 'overlay_svg_hotspot_editor'))
+            var area = $(createSVGElementIn('circle', gid))
                 .attr('cx', coords[0])
                 .attr('cy', coords[1])
                 .attr('r', coords[2]);
@@ -136,13 +141,13 @@ function editorLoadRoom(room) {
             var points = ''
             for (var i=0; i<coords.length; i+=2) {
                 points += coords[i] + ',' + coords[i+1] + ' ';
-                var handle = $(createSVGElementIn('circle', 'overlay_svg_hotspot_editor'))
+                var handle = $(createSVGElementIn('circle', gid))
                     .attr('cx', coords[i])
                     .attr('cy', coords[i+1])
                     .attr('r', 5)
                     .addClass('editor-hotspot-handle');
             }
-            var area = $(createSVGElementIn('polygon', 'overlay_svg_hotspot_editor'))
+            var area = $(createSVGElementIn('polygon', gid))
                 .attr('points', points);
         }
         if (area==null) continue; //break out the loop in case of malformed hotspot
