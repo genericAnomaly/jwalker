@@ -141,7 +141,17 @@ body {
 	fill: #fff;
 	stroke: #000;
 	stroke-width: 1px;
+	cursor: grab;
 }
+.editor-hotspot-handle+.grabbed {
+	cursor: grabbing;
+}
+
+#overlay_svg_hotspot_editor {
+	pointer-events: visibleFill;
+}
+
+
 
 .editor-arrow-n {
 	/*TODO: https://stackoverflow.com/questions/13914868/using-css-approach-how-to-set-an-image-to-fill-a-path-in-svg*/
