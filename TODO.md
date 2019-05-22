@@ -9,6 +9,22 @@
 	* textbox insta-filter for finding by id *quickly*
 * "Editor" room view
 	* Represent hotspots in this mode with interactive pieces within the SVG overlay
+	 * ~~Implement visible hotspots in the overlay SVG~~
+	 * Implement handles for editable hotspots
+     * Handles define allowed movement: bound X, bound Y, unbound
+		 * Handle movement is reflected by objects they represent (complicated)
+		   * ``poly``
+			   * Arbitrary indexed coords in a polygon
+			 * ``circle``
+			   * Coordinates of a circle
+			   * Radius of a circle
+			 * ``rect``
+				 * Width of a rect (right)
+				 * Height of a rect (bottom)
+				 * X coordinate and width of a rect (left)
+				 * Y coordinate and height of a rect (top)
+				 * X and Y coordinates of a rect (movement)
+				 * Let the corner handles of a rect simply bind the adjacent edge handles.
 	* Bind hotspot movement to the corresponding values in ``hotspot.area`` directly.
 	* "Room properties" where user can edit key/id, img, add hotspots, and configure hotspots
 		* at-a-glance room states for inbound and outbound edges
