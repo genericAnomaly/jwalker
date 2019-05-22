@@ -153,7 +153,26 @@ function editorLoadRoom(room) {
                     .attr('width', 8)
                     .attr('height', 8)
                     .data('points-index', i/2)
-                    .addClass('editor-hotspot-handle');
+                    .addClass('editor-hotspot-handle')
+                    .on('updateHandlePosition', function(e) {
+                        debug(e);
+                    })
+                    .on('mousedown', function() {
+                        $(this).addClass('grabbed');
+                    })
+                    .on('mouseup', function() {
+                        $(this).removeClass('grabbed');
+                    })
+                    .on('mousemove', function(e) {
+                        if (!$(this).hasClass('grabbed')) return;
+                        debug(e);
+                        debug($(this).attr('x'));
+                        debug($(this).attr('y'));
+                        var pt = getLocalCoords(e, $('#overlay_svg'));
+                        debug(pt);
+                        $(this).attr('x', pt.x);
+                        $(this).attr('y', pt.y);
+                    });
                 handles[0].appendChild(handle[0]);
             }
             var area = $(svg('polygon'))
@@ -204,6 +223,23 @@ function getDOMObject(mixed) {
 }
 */
 
+function getLocalCoords(e, svg) {
+    //for mouse event `e`, return the localised coordinates of the mouse event within the SVG element
+    //powered by some js magic I still don't understand discovered at https://stackoverflow.com/questions/12752519/svg-capturing-mouse-coordinates until this functionality becomes native
+
+    //If we passed jQuery stuff instead of native, just yoink that.
+    if (e.hasOwnProperty('originalEvent')) e = e.originalEvent;
+    if (svg instanceof jQuery) svg = svg[0];
+
+    //Get the tranformation matrix for screen coordinates to document coordinates by inverting the doc-to-screen matrix
+    var transform = svg.getScreenCTM().inverse();
+
+    var pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    return pt.matrixTransform(transform);
+    //NB: This appears to generate a significant bug in Mozilla Firefox when the main div is absolutely positioned and transformed. Commenting out that styling for now.
+}
 
 
 
