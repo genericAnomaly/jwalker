@@ -144,6 +144,7 @@ function editorLoadRoom(room) {
                 .attr('cy', coords[1])
                 .attr('r', coords[2]);
         } else if (hotspot.area.shape == 'poly') {
+            var area = $(svg('polygon'));
             var points = ''
             for (var i=0; i<coords.length; i+=2) {
                 points += coords[i] + ',' + coords[i+1] + ' ';
@@ -154,29 +155,28 @@ function editorLoadRoom(room) {
                     .attr('height', 8)
                     .data('points-index', i/2)
                     .addClass('editor-hotspot-handle')
-                    .on('updateHandlePosition', function(e) {
-                        debug(e);
+                    .on('updatePosition', {'i' : i, 'obj' : area}, function(e, args) {
+                        $(this).attr('x', args.pt.x);
+                        $(this).attr('y', args.pt.y);
                     })
                     .on('mousedown', function() {
                         $(this).addClass('grabbed');
                     })
                     .on('mouseup', function() {
                         $(this).removeClass('grabbed');
-                    })
+                    });
+                    /*
                     .on('mousemove', function(e) {
                         if (!$(this).hasClass('grabbed')) return;
-                        debug(e);
-                        debug($(this).attr('x'));
-                        debug($(this).attr('y'));
                         var pt = getLocalCoords(e, $('#overlay_svg'));
                         debug(pt);
                         $(this).attr('x', pt.x);
                         $(this).attr('y', pt.y);
                     });
+                    */
                 handles[0].appendChild(handle[0]);
             }
-            var area = $(svg('polygon'))
-                .attr('points', points);
+            area.attr('points', points);
         }
         if (area==null) continue; //break out the loop in case of malformed hotspot
         //Common properties on the hotspot
@@ -188,6 +188,15 @@ function editorLoadRoom(room) {
         //Add it to the overlay
         $('#overlay_svg_hotspot_editor')[0].appendChild(g[0]);
     }
+
+    //Create a document level listener for mouse movement to handle point-handle movement.
+    //TODO: move this to an editor init function or something; it only ever needs to be called once, not per-room
+    $(document).on('mousemove', function(e) {
+        var grabbed = $('.grabbed');
+        if (grabbed.length === 0) return;
+        var pt = getLocalCoords(e, $('#overlay_svg'));
+        grabbed.trigger('updatePosition', {'pt' : pt});
+    })
 }
 
 
