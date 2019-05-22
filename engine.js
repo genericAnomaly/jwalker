@@ -161,19 +161,7 @@ function editorLoadRoom(room) {
                     })
                     .on('mousedown', function() {
                         $(this).addClass('grabbed');
-                    })
-                    .on('mouseup', function() {
-                        $(this).removeClass('grabbed');
                     });
-                    /*
-                    .on('mousemove', function(e) {
-                        if (!$(this).hasClass('grabbed')) return;
-                        var pt = getLocalCoords(e, $('#overlay_svg'));
-                        debug(pt);
-                        $(this).attr('x', pt.x);
-                        $(this).attr('y', pt.y);
-                    });
-                    */
                 handles[0].appendChild(handle[0]);
             }
             area.attr('points', points);
@@ -196,7 +184,11 @@ function editorLoadRoom(room) {
         if (grabbed.length === 0) return;
         var pt = getLocalCoords(e, $('#overlay_svg'));
         grabbed.trigger('updatePosition', {'pt' : pt});
-    })
+    }). on('mouseup', function () {
+        var grabbed = $('.grabbed');
+        if (grabbed.length === 0) return;
+        grabbed.removeClass('grabbed');
+    });
 }
 
 
