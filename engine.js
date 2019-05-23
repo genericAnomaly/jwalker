@@ -156,20 +156,18 @@ function editorLoadRoom(room) {
                     .attr('height', 8)
                     .addClass('editor-hotspot-handle')
                     .on('updatePosition', {'i' : i, 'poly' : area}, function(e, args) {
+                        //Reposition the handle
                         $(this).attr('x', args.pt.x);
                         $(this).attr('y', args.pt.y);
-
-
-                        debug('Updating vert i=' + e.data.i/2);
+                        //Update <poly> element
                         var poly = e.data.poly;
                         var points = poly.attr('points');
                         points = points.split(' ');
-
                         points[e.data.i/2] = Math.floor(args.pt.x) + ',' + Math.floor(args.pt.y);
-                        debug(points);
                         points = points.join(' ');
                         poly.attr('points', points);
-                        debug(points);
+                        //TODO: trigger the <poly> to update the underlying <shape>
+                        //IDEA: It might make more sense for the underlying <poly> to handle this update using a bubbled-up updatePosition trigger and an array of its handles tucked into its data? BIG SHRUG? Actually yeah I think it would. Handle just worries about updating it's position (and if there's a constraint on it?) then bubbles up the event to updateGraphics. Yeah, that's what's happening here. Test it with the circle resizer, if it goes off we'll do it here. AHHAHAHHAHA! SCIENCE!
                     })
                     .on('mousedown', function() {
                         $(this).addClass('grabbed');
