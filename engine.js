@@ -127,8 +127,8 @@ function editorLoadRoom(room) {
             .attr('id', 'editor_hotspot_'+hotspot_id);
         var handles = $(svg('g'));
         var shape = $(svg('g'));
-        g[0].appendChild(shape[0]);
-        g[0].appendChild(handles[0]);
+        g.appendChild(shape);
+        g.appendChild(handles);
         //Split out the coordinates into an array
         var coords = hotspot.area.coords.split(',');
         //Case Switch (but it's ifs 'cos i don't care for case/switch syntax)
@@ -143,6 +143,8 @@ function editorLoadRoom(room) {
                 .attr('cx', coords[0])
                 .attr('cy', coords[1])
                 .attr('r', coords[2]);
+                //var root =
+
         } else if (hotspot.area.shape == 'poly') {
             var area = $(svg('polygon'));
             var points = ''
@@ -172,7 +174,7 @@ function editorLoadRoom(room) {
                     .on('mousedown', function() {
                         $(this).addClass('grabbed');
                     });
-                handles[0].appendChild(handle[0]);
+                handles.appendChild(handle);
             }
             area.attr('points', points);
         }
@@ -182,9 +184,9 @@ function editorLoadRoom(room) {
             .data('id', hotspot_id)
             .addClass('editor-hotspot')
             .addClass('editor-'+hotspot.area.class);
-        shape[0].appendChild(area[0]);
+        shape.appendChild(area);
         //Add it to the overlay
-        $('#overlay_svg_hotspot_editor')[0].appendChild(g[0]);
+        $('#overlay_svg_hotspot_editor').appendChild(g);
     }
 
     //Create a document level listener for mouse movement to handle point-handle movement.
@@ -252,6 +254,15 @@ function getLocalCoords(e, svg) {
     //NB: This appears to generate a significant bug in Mozilla Firefox when the main div is absolutely positioned and transformed. Commenting out that styling for now.
 }
 
+
+
+$.fn.svg = function (tag) {
+    return document.createElementNS('http://www.w3.org/2000/svg', tag);
+}
+$.fn.appendChild = function(child) {
+    child = $(child);
+    this[0].appendChild(child[0])
+}
 
 
 const DEBUG = true;

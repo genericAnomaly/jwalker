@@ -152,6 +152,11 @@ body {
 	stroke-width: 1px;
 	cursor: grab;
 }
+
+.editor-hotspot-handle+.handle-root {
+	transform: translate(-4px, -4px) rotate(45deg);
+}
+
 .editor-hotspot-handle+.grabbed {
 	cursor: grabbing;
 }
