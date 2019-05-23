@@ -34,6 +34,7 @@
     height: 100%;
     overflow: hidden;
     pointer-events: none;
+	overflow: visible;
 }
 #overlay text {
 	fill: #fff;
@@ -155,6 +156,9 @@ body {
 	cursor: grabbing;
 }
 
+#overlay_svg {
+	overflow: visible;
+}
 #overlay_svg_hotspot_editor {
 	pointer-events: visibleFill;
 }

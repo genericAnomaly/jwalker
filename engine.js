@@ -147,17 +147,29 @@ function editorLoadRoom(room) {
             var area = $(svg('polygon'));
             var points = ''
             for (var i=0; i<coords.length; i+=2) {
-                points += coords[i] + ',' + coords[i+1] + ' ';
+                points += coords[i] + ',' + coords[i+1];
+                if (i+2<coords.length) points += ' ';//add a space on all but the last pair
                 var handle = $(svg('rect'))
                     .attr('x', coords[i])
                     .attr('y', coords[i+1])
                     .attr('width', 8)
                     .attr('height', 8)
-                    .data('points-index', i/2)
                     .addClass('editor-hotspot-handle')
-                    .on('updatePosition', {'i' : i, 'obj' : area}, function(e, args) {
+                    .on('updatePosition', {'i' : i, 'poly' : area}, function(e, args) {
                         $(this).attr('x', args.pt.x);
                         $(this).attr('y', args.pt.y);
+
+
+                        debug('Updating vert i=' + e.data.i/2);
+                        var poly = e.data.poly;
+                        var points = poly.attr('points');
+                        points = points.split(' ');
+
+                        points[e.data.i/2] = Math.floor(args.pt.x) + ',' + Math.floor(args.pt.y);
+                        debug(points);
+                        points = points.join(' ');
+                        poly.attr('points', points);
+                        debug(points);
                     })
                     .on('mousedown', function() {
                         $(this).addClass('grabbed');
