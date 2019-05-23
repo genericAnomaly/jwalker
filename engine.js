@@ -144,8 +144,11 @@ function editorLoadRoom(room) {
             var area = $(svg('rect'));
 
 
-            shape.setPos = function(x, y) {
-                return this.attr('transform', 'translate(' + x +' '+ y + ')' )
+            g.setPos = function(x, y) {
+                return this
+                    .attr('transform', 'translate(' + x +' '+ y + ')' )
+                    .data('x', x)
+                    .data('y', y);
             };
             area.setWidth = function(w) {
                 return this.attr('width', w).attr('x', -w/2);
@@ -154,12 +157,33 @@ function editorLoadRoom(room) {
                 return this.attr('height', h).attr('y', -h/2);
             };
 
-            shape.setPos(ox, oy);
+            g.setPos(ox, oy);
             area.setWidth(coords[2]-coords[0]);
             area.setHeight(coords[3]-coords[1]);
 
+            var root = createHandle();
+            root
+                .on('updatePosition', {'g' : g}, function(e, args) {
+                    e.data.g.setPos(args.pt.x, args.pt.y);
+                })
+                .on('mousedown', function() {
+                    $(this).addClass('grabbed');
+                })
+            handles.appendChild(root);
 
-
+            var west = createHandle();
+            west
+                .on('updatePosition', {'g' : g, 'area' : area}, function(e, args) {
+                    //TODO: better point passing so we can localise to coordinate systems easier
+                    var x = args.pt.x-e.data.g.data('x');
+                    $(this).attr('x', x);
+                    e.data.area.setWidth(Math.abs(x*2));
+                })
+                .on('mousedown', function() {
+                    $(this).addClass('grabbed');
+                })
+                .attr('x', -(coords[2]-coords[0])/2);
+            handles.appendChild(west);
 
 
 
@@ -338,6 +362,17 @@ $.fn.appendChild = function(child) {
     this[0].appendChild(child[0])
     return this;
 }
+
+
+
+
+function createHandle() {
+    return $().svg('rect')
+    .attr('width', 8)
+    .attr('height', 8)
+    .addClass('editor-hotspot-handle')
+}
+
 
 
 const DEBUG = true;
