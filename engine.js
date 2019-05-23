@@ -143,7 +143,45 @@ function editorLoadRoom(room) {
                 .attr('cx', coords[0])
                 .attr('cy', coords[1])
                 .attr('r', coords[2]);
-                //var root =
+            var radius = $().svg('rect')
+                .attr('x', coords[0])
+                .attr('y', coords[1]-coords[2])
+                .attr('width', 8)
+                .attr('height', 8)
+                .addClass('editor-hotspot-handle')
+                .on('mousedown', function() {
+                    $(this).addClass('grabbed');
+                })
+                .on('updatePosition', {'for' : area}, function(e, args) {
+                    //Reposition the handle (can be excised if other position stuff goes on in for)
+                    $(this).attr('x', args.pt.x);
+                    $(this).attr('y', args.pt.y);
+                    var rad = Math.sqrt(Math.pow(e.data.for.attr('cx')-args.pt.x, 2)+Math.pow(e.data.for.attr('cy')-args.pt.y, 2));
+                    e.data.for.attr('r', rad);
+
+                });
+                handles.appendChild(radius);
+            var root = $().svg('rect')
+                .attr('x', coords[0])
+                .attr('y', coords[1])
+                .attr('width', 8)
+                .attr('height', 8)
+                .addClass('editor-hotspot-handle')
+                .addClass('handle-root')
+                .on('mousedown', function() {
+                    $(this).addClass('grabbed');
+                })
+                .on('updatePosition', {'for' : area}, function(e, args) {
+                    //Reposition the handle (can be excised if other position stuff goes on in for)
+                    $(this).attr('x', args.pt.x);
+                    $(this).attr('y', args.pt.y);
+                    e.data.for.attr('cx', args.pt.x);
+                    e.data.for.attr('cy', args.pt.y);
+                });
+            handles.appendChild(root);
+
+            //OK so bear w/ me here.
+            //I think we just need to move the container, not the primitives.
 
         } else if (hotspot.area.shape == 'poly') {
             var area = $(svg('polygon'));
@@ -170,6 +208,7 @@ function editorLoadRoom(room) {
                         poly.attr('points', points);
                         //TODO: trigger the <poly> to update the underlying <shape>
                         //IDEA: It might make more sense for the underlying <poly> to handle this update using a bubbled-up updatePosition trigger and an array of its handles tucked into its data? BIG SHRUG? Actually yeah I think it would. Handle just worries about updating it's position (and if there's a constraint on it?) then bubbles up the event to updateGraphics. Yeah, that's what's happening here. Test it with the circle resizer, if it goes off we'll do it here. AHHAHAHHAHA! SCIENCE!
+                        //COMMENT: That might make sense here but it's a tad wonky. Maybe have a "onVertexChange" for <poly>s and trigger that on vert move?
                     })
                     .on('mousedown', function() {
                         $(this).addClass('grabbed');
@@ -219,23 +258,6 @@ function createSVGElementIn(tag, parent_id) {
 
 
 
-/*
-Probably don't need this...
-function getDOMObject(mixed) {
-    //Helper function since jQuery doesn't like working in the svg namespace
-    //mixed may be a DOM Object, a JQuery Object, or a string matching an ID
-    var obj = null;
-    if (mixed instanceof jQuery) {
-        obj = mixed[0];
-    } else if (mixed instanceof HTMLElement) {
-        obj = mixed;
-    } else if (typeof mixed == "string") {
-        obj = document.getElementById(mixed);
-    }
-    return obj;
-}
-*/
-
 function getLocalCoords(e, svg) {
     //for mouse event `e`, return the localised coordinates of the mouse event within the SVG element
     //powered by some js magic I still don't understand discovered at https://stackoverflow.com/questions/12752519/svg-capturing-mouse-coordinates until this functionality becomes native
@@ -257,11 +279,12 @@ function getLocalCoords(e, svg) {
 
 
 $.fn.svg = function (tag) {
-    return document.createElementNS('http://www.w3.org/2000/svg', tag);
+    return $(document.createElementNS('http://www.w3.org/2000/svg', tag));
 }
 $.fn.appendChild = function(child) {
     child = $(child);
     this[0].appendChild(child[0])
+    return this;
 }
 
 

@@ -153,8 +153,8 @@ body {
 	cursor: grab;
 }
 
-.editor-hotspot-handle+.handle-root {
-	transform: translate(-4px, -4px) rotate(45deg);
+.editor-hotspot-handle.handle-root {
+	/*can't rot(45) a rect around itself :P */
 }
 
 .editor-hotspot-handle+.grabbed {
