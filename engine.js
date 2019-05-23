@@ -133,11 +133,63 @@ function editorLoadRoom(room) {
         var coords = hotspot.area.coords.split(',');
         //Case Switch (but it's ifs 'cos i don't care for case/switch syntax)
         if (hotspot.area.shape == 'rect') {
-            var area = $(svg('rect'))
-                .attr('x', coords[0])
-                .attr('y', coords[1])
-                .attr('width', coords[2]-coords[0])
-                .attr('height', coords[3]-coords[1]);
+            var ox = ( parseFloat(coords[0]) + parseFloat(coords[2]) )  /2;
+            var oy = ( parseFloat(coords[1]) + parseFloat(coords[3]) )  /2;
+            shape
+                //.attr('transform', 'translate(' + ox +' '+ oy + ')' )
+                .data('x', ox)
+                .data('y', oy);
+            //shape.attr('x', (coords[0]+coords[2])/2 )
+            //shape.attr('y', (coords[1]+coords[3])/2 )
+            var area = $(svg('rect'));
+
+
+            shape.setPos = function(x, y) {
+                return this.attr('transform', 'translate(' + x +' '+ y + ')' )
+            };
+            area.setWidth = function(w) {
+                return this.attr('width', w).attr('x', -w/2);
+            };
+            area.setHeight = function(h) {
+                return this.attr('height', h).attr('y', -h/2);
+            };
+
+            shape.setPos(ox, oy);
+            area.setWidth(coords[2]-coords[0]);
+            area.setHeight(coords[3]-coords[1]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         } else if (hotspot.area.shape == 'circle') {
             var area = $(svg('circle'))
                 .attr('cx', coords[0])
