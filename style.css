@@ -130,8 +130,7 @@ body {
 }
 
 
-
-.editor-hotspot {
+.editor-hotspot-area {
 	fill: rgba(0, 255, 255, 0.5);
 	stroke: #fff;
 	stroke-width: 2px;
@@ -157,6 +156,30 @@ body {
 		stroke-dashoffset: 10;
 	}
 }
+
+.editor-handle rect {
+	transform: translate(-4px, -4px);
+	fill: #fff;
+	stroke: #000;
+	stroke-width: 2px;
+}
+.editor-handle.handle-root rect {
+	transform: translate(-4px, -4px) rotate(45deg);
+}
+
+.editor-handle {
+	cursor: grab;
+}
+
+.editor-handle.handle-constrain-x {
+	cursor: ns-resize;
+}
+.editor-handle.handle-constrain-y {
+	cursor: ew-resize;
+}
+
+
+
 .editor-hotspot-handle {
 	transform: translate(-4px, -4px);
 	fill: #fff;

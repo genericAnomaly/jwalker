@@ -28,13 +28,10 @@ function startEditor() {
     $(document).on('mousemove', function(e) {
         var grabbed = $('.grabbed');
         if (grabbed.length === 0) return;
+        //If a handle is currently grabbed, trigger our custom grabbed-drag event, and pre-digest it to local coordinates
         var pt = getLocalCoords(e, $('#overlay_svg'));
-        grabbed.trigger('updatePosition', {'pt' : pt});
-        debug(grabbed);
-        if (typeof grabbed.setPos === 'function' ){
-            debug('oooogity booooooogity!');
-            grabbed.setPos(pt.x, pt.y);
-        }
+        grabbed.trigger('grabbed-drag', pt);//e);
+
     }). on('mouseup', function () {
         var grabbed = $('.grabbed');
         if (grabbed.length === 0) return;
@@ -223,7 +220,7 @@ function editorLoadRoom(room) {
         } else if (hotspot.area.shape == 'rect') {
             var h = new Hotspot(hotspot);
             h.get$()
-                .attr('class', 'editor-hotspot');
+                ;
 
             $('#overlay_svg_hotspot_editor').appendChild(h.get$());
 
@@ -345,18 +342,18 @@ function createSVGElementIn(tag, parent_id) {
 
 
 
-function getLocalCoords(e, svg) {
+function getLocalCoords(e, context) {
     //for mouse event `e`, return the localised coordinates of the mouse event within the SVG element
     //powered by some js magic I still don't understand discovered at https://stackoverflow.com/questions/12752519/svg-capturing-mouse-coordinates until this functionality becomes native
 
     //If we passed jQuery stuff instead of native, just yoink that.
     if (e.hasOwnProperty('originalEvent')) e = e.originalEvent;
-    if (svg instanceof jQuery) svg = svg[0];
+    if (context instanceof jQuery) context = context[0];
 
     //Get the tranformation matrix for screen coordinates to document coordinates by inverting the doc-to-screen matrix
-    var transform = svg.getScreenCTM().inverse();
+    var transform = context.getScreenCTM().inverse();
 
-    var pt = svg.createSVGPoint();
+    var pt = context.createSVGPoint();
     pt.x = e.clientX;
     pt.y = e.clientY;
     return pt.matrixTransform(transform);
@@ -401,6 +398,147 @@ function createHandle() {
     return g;
 }
 
+
+
+class DisplayElement {
+    constructor(args) {
+        //stash this for some reason i guess? TODO: remove me later if this never ends up getting used
+        this.initialArgs = args;
+        //Declare state variables
+        this.x = 0;
+        this.y = 0;
+        this.children = [];
+        this.parent = null;
+
+        //Build an empty boy
+        this.gfx = {};  //Hey! NB! this.gfx is not hierarchical! it might look like that since it has a root in it but it's not! maybe it should be? MAYBE? like, this.gfx.root.children[i]
+        this.gfx.root = $(svg('g'));
+
+        //Make this object reachable from a fresh selector
+        this.gfx.root.data('controller', this);
+    }
+
+    setPos(x, y) {
+        this.x = x;
+        this.y = y;
+        var translate = [x, y].join(' ');
+        this.gfx.root.attr('transform', 'translate('+translate+')');
+    }
+    get$() {
+        return this.gfx.root;
+    }
+
+
+    getLocalCoords(screenX, screenY) {
+        //for mouse event `e`, return the localised coordinates of the mouse event within the SVG element
+        //powered by some js magic I still don't understand discovered at https://stackoverflow.com/questions/12752519/svg-capturing-mouse-coordinates until this functionality becomes native
+
+        debug(this.parent);
+        var context = this.parent.gfx.root[0]; //this.parent should be populated in the current flow but might need greater assurance it'll be populated
+
+        //Get the tranformation matrix for screen coordinates to document coordinates by inverting the doc-to-screen matrix
+        var transform = context.getScreenCTM().inverse();
+
+        var pt = context.createSVGPoint();
+        pt.x = x;
+        pt.y = y;
+        return pt.matrixTransform(transform);
+        //NB: This appears to generate a significant bug in Mozilla Firefox when the main div is absolutely positioned and transformed. Commenting out that styling for now.
+    }
+
+
+
+    //Let's, just, maybe put "recreate actionscript" on the back burner, k?
+    /*
+    addChild(c) {
+        c.parent = this;
+        this.children.push(c);
+        this.gfx.root.appendChild(c.gfx.root)
+    }
+    */
+
+}
+
+
+
+class Handle extends DisplayElement {
+    constructor(args) {
+        super(args)
+
+        this.constrainAxis = null;
+        this.isRootHandle = false;
+
+        //Draw self
+        this.gfx.root
+            .addClass('editor-handle');
+        this.gfx.shape = $(svg('rect'))
+            .attr('width', 8)
+            .attr('height', 8);
+
+        //Stick them together into a display tree
+        this.gfx.root.appendChild(this.gfx.shape);
+
+        //Make draggable
+        this.gfx.root.on('mousedown', function() {
+            $(this).addClass('grabbed');
+        }).on('grabbed-drag', function (e, args) {
+            //debug('handle got dragged');
+            //debug(args);
+            //"eff it, we'll DO IT LIVE" --noted shouting enthusiast BILLIOUS RILEY
+            var controller = $(this).data('controller');
+            controller.setHandlePos(args);
+        });
+
+    }
+    constrain(axis) {
+        this.constrainAxis = axis;
+        this.gfx.shape.addClass('handle-constrain-' + axis);
+    }
+    makeRoot() {
+        this.isRootHandle = true;
+        //TODO; add classes here
+    }
+    makeScaleXHandle(complement) {
+        this.isScaleXHandle = true;
+        //define other handles to mirror motion to?
+    }
+    makeScaleYHandle(complement) {
+        this.isScaleYHandle = true;
+    }
+    makeVertexHandle(i) {
+        this.isVertexHandle = true;
+        this.vertexIndex = i;
+    }
+
+    setHandlePos(pt) {
+        //logic-handling for changing the position of a handle.
+        //accepts position relative to root SVG
+        if (this.isRootHandle) {
+            this.parent.setPos(pt.x, pt.y);
+        } else {
+            var x = parseFloat(pt.x)-parseFloat(this.parent.x);
+            var y = parseFloat(pt.y)-parseFloat(this.parent.y);
+            if (this.isScaleXHandle) {
+                this.setPos(x, 0);
+                this.parent.setWidth(Math.abs(x*2));
+            } else if (this.isScaleYHandle) {
+                this.setPos(0, y);
+                this.parent.setHeight(Math.abs(y*2));
+            } else if (this.isRadiusHandle) {
+                var r = Math.sqrt(Math.pow(x, 2)+Math.pow(y, 2));
+                this.parent.setRadius(r);
+                this.setPos(x, y);
+            } else if (this.isVertexHandle) {
+                this.setPos(x, y);
+                this.parent.setVertPos(this.vertexIndex, x, y);
+            }
+        }
+
+    }
+
+}
+
+
 class Hotspot {
     constructor(args) {
         this.initialArgs = args;
@@ -420,7 +558,8 @@ class Hotspot {
         //Set up the visible members
         this.gfx = {};
         this.gfx.root = $(svg('g'));
-        this.gfx.shape = $(svg(this.shape));
+        this.gfx.shape = $(svg(this.shape))
+            .addClass('editor-hotspot-area');
         this.gfx.handles = $(svg('g'));
 
         //Stick them together into a display tree
@@ -433,11 +572,8 @@ class Hotspot {
         if (this.shape == 'rect') {
             var width = coords[2]-coords[0];
             var height = coords[3]-coords[1];
-            //var x = (coords[0]+coords[2])/2;
-            //var y = (coords[1]+coords[3])/2;
             var x = ( parseFloat(coords[0]) + parseFloat(coords[2]) ) /2;
             var y = ( parseFloat(coords[1]) + parseFloat(coords[3]) ) /2;
-
             this.setWidth(width);
             this.setHeight(height);
             this.setPos(x, y);
@@ -454,9 +590,55 @@ class Hotspot {
             this.rebuildPolygon();
         }
 
+
+
+
+
         //TODO: build the handles
+        var h = {};
+        //NB: do we need to remember all of these? friendlier var names? idk.
 
+        if (this.shape !== 'polygon') {
+            h.r = new Handle();
+            h.r.makeRoot();
+            h.r.gfx.root.addClass('handle-root');
+            this.gfx.handles.appendChild(h.r.get$());
+        }
+        if (this.shape == 'rect') {
+            h.e = new Handle();
+            h.e.setPos(width/2, 0);
+            h.e.makeScaleXHandle();
+            this.gfx.handles.appendChild(h.e.get$());
 
+            h.n = new Handle();
+            h.n.setPos(0, height/2)
+            h.n.makeScaleYHandle();
+            this.gfx.handles.appendChild(h.n.get$());
+        }
+        if (this.shape == 'circle') {
+            h.rad = new Handle();
+            h.rad.setPos(0, this.radius)
+            h.rad.makeRadiusHandle();
+            this.gfx.handles.appendChild(h.rad.get$());
+        }
+        if (this.shape == 'polygon') {
+            for (var i=0; i<this.verts.length; i++) {
+                var v = new Handle();
+                v.setPos(this.verts[i].x, this.verts[i].y);
+                v.makeVertexHandle(i);
+                this.gfx.handles.appendChild(v.get$());
+                h.v[i] = v;
+            }
+        }
+
+        //h.w = new Handle();
+        //h.w.setPos(-width/2, 0);
+        //h.w.constrain('y');
+        //this.gfx.handles.appendChild(h.w.get$());
+
+        for(var key in h) {
+            h[key].parent = this;
+        }
 
 
 
@@ -487,9 +669,6 @@ class Hotspot {
         this.gfx.shape.attr('r', r);
     }
     setPos(x, y) {
-        debug('setPos called');
-        debug(x);
-        debug(y);
         this.x = x;
         this.y = y;
         var translate = [x, y].join(' ');
@@ -500,17 +679,7 @@ class Hotspot {
         this.verts[i] = pt;
         this.rebuildPolygon();
 
-
-        /*
-        var pt = [x, y].join(',');
-        var points = this.gfx.shape.attr('points');
-        points = points.split(' ');
-        points[i] = pt;
-        points = points.join(' ');
-        this.gfx.shape.attr('points', points);
-        */
     }
-
     rebuildPolygon() {
         var points = [];
         for (var i=0; i<this.verts.length; i++) {
@@ -541,6 +710,10 @@ class Hotspot {
     }
 
 }
+
+
+
+
 
 const DEBUG = true;
 function debug(object) {
