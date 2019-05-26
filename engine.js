@@ -24,6 +24,23 @@ function startEditor() {
         $('#roomlist-panel').append(li);
     }
 
+    //Create a document level listener for mouse movement to handle point-handle movement.
+    $(document).on('mousemove', function(e) {
+        var grabbed = $('.grabbed');
+        if (grabbed.length === 0) return;
+        var pt = getLocalCoords(e, $('#overlay_svg'));
+        grabbed.trigger('updatePosition', {'pt' : pt});
+        debug(grabbed);
+        if (typeof grabbed.setPos === 'function' ){
+            debug('oooogity booooooogity!');
+            grabbed.setPos(pt.x, pt.y);
+        }
+    }). on('mouseup', function () {
+        var grabbed = $('.grabbed');
+        if (grabbed.length === 0) return;
+        grabbed.removeClass('grabbed');
+    });
+
 }
 
 
@@ -133,15 +150,13 @@ function editorLoadRoom(room) {
         var coords = hotspot.area.coords.split(',');
         //Case Switch (but it's ifs 'cos i don't care for case/switch syntax)
         if (hotspot.area.shape == 'rect') {
-            var ox = ( parseFloat(coords[0]) + parseFloat(coords[2]) )  /2;
-            var oy = ( parseFloat(coords[1]) + parseFloat(coords[3]) )  /2;
-            shape
-                //.attr('transform', 'translate(' + ox +' '+ oy + ')' )
-                .data('x', ox)
-                .data('y', oy);
-            //shape.attr('x', (coords[0]+coords[2])/2 )
-            //shape.attr('y', (coords[1]+coords[3])/2 )
+            var x = ( parseFloat(coords[0]) + parseFloat(coords[2]) )  /2;
+            var y = ( parseFloat(coords[1]) + parseFloat(coords[3]) )  /2;
+            var width = coords[2]-coords[0];
+            var height = coords[3]-coords[1];
+
             var area = $(svg('rect'));
+
 
 
             g.setPos = function(x, y) {
@@ -150,6 +165,8 @@ function editorLoadRoom(room) {
                     .data('x', x)
                     .data('y', y);
             };
+
+
             area.setWidth = function(w) {
                 return this.attr('width', w).attr('x', -w/2);
             };
@@ -157,9 +174,11 @@ function editorLoadRoom(room) {
                 return this.attr('height', h).attr('y', -h/2);
             };
 
-            g.setPos(ox, oy);
+
+            g.setPos(x, y);
             area.setWidth(coords[2]-coords[0]);
             area.setHeight(coords[3]-coords[1]);
+
 
             var root = createHandle();
             root
@@ -172,17 +191,9 @@ function editorLoadRoom(room) {
             handles.appendChild(root);
 
             var west = createHandle();
-            west
-                .on('updatePosition', {'g' : g, 'area' : area}, function(e, args) {
-                    //TODO: better point passing so we can localise to coordinate systems easier
-                    var x = args.pt.x-e.data.g.data('x');
-                    $(this).attr('x', x);
-                    e.data.area.setWidth(Math.abs(x*2));
-                })
-                .on('mousedown', function() {
-                    $(this).addClass('grabbed');
-                })
-                .attr('x', -(coords[2]-coords[0])/2);
+            west.data('target', g)
+            west.setPos(width/2, 0);
+
             handles.appendChild(west);
 
 
@@ -304,18 +315,7 @@ function editorLoadRoom(room) {
         $('#overlay_svg_hotspot_editor').appendChild(g);
     }
 
-    //Create a document level listener for mouse movement to handle point-handle movement.
-    //TODO: move this to an editor init function or something; it only ever needs to be called once, not per-room
-    $(document).on('mousemove', function(e) {
-        var grabbed = $('.grabbed');
-        if (grabbed.length === 0) return;
-        var pt = getLocalCoords(e, $('#overlay_svg'));
-        grabbed.trigger('updatePosition', {'pt' : pt});
-    }). on('mouseup', function () {
-        var grabbed = $('.grabbed');
-        if (grabbed.length === 0) return;
-        grabbed.removeClass('grabbed');
-    });
+
 }
 
 
@@ -367,13 +367,126 @@ $.fn.appendChild = function(child) {
 
 
 function createHandle() {
-    return $().svg('rect')
-    .attr('width', 8)
-    .attr('height', 8)
-    .addClass('editor-hotspot-handle')
+    var g = $().svg('g');
+    var rect = $().svg('rect')
+        .attr('width', 8)
+        .attr('height', 8)
+        .addClass('editor-hotspot-handle')
+    g.appendChild(rect);
+    g.data('constrain-axis', 'none');
+    g.constrain = function (axis) {
+        return this.data('constrain-axis', axis);
+    }
+    g.setPos = function(x, y) {
+        debug('setpos(' + x + ', ' + y + ')');
+        if (this.data('constrain')=='x') x='0';
+        if (this.data('constrain')=='y') y='0';
+        this.attr('transform', 'translate(' + x + ' ' + y + ')');
+        debug('translate(' + x + ' ' + y + ')');
+    }
+    g.on('mousedown', function() {
+        $(this).addClass('grabbed');
+    });
+    return g;
 }
 
+class Hotspot {
+    constructor(args) {
+        this.initialArgs = args;
 
+        //Declare and extract DisplayObject style vars from the args
+        this.shape = args.area.shape;
+        this.height = 0;
+        this.width = 0;
+        this.radius = 0;
+        this.x = 0;
+        this.y = 0;
+        this.verts = [];
+
+        //Set up the visible members
+        this.gfx = {};
+        this.gfx.root = $(svg('g'));
+        if (this.shape == 'poly') this.shape = 'polygon';
+        this.gfx.shape = $(svg(shape));
+
+
+        //Turn the coords attribute into useable drawing data
+        var coords = args.area.coords.split(',');
+        if (this.shape == 'rect') {
+            this.width = coords[2]-coords[0];
+            this.height = coords[3]-coords[1];
+            this.x = (coords[0]+coords[2])/2;
+            this.y = (coords[1]+coords[3])/2;
+        } else if (this.shape == 'circle') {
+            this.x = coords[0];
+            this.y = coords[1];
+            this.radius = coords[2];
+        } else if (this.shape == 'polygon') {
+            for (var i=0; i+1<coords.length; i+=2) {
+                this.verts.push({'x' : coords[i], 'y' : coords[i+1]});
+            }
+        }
+
+
+
+        if (this.shape == 'rect') {
+            this.setWidth(width);
+            this.setHeight(height);
+        }
+        if (this.shape == 'circle') this.setRadius(radius);
+
+
+
+    }
+
+    setWidth(w) {
+        this.width = w;
+        if (this.shape == 'rect') {
+            this.gfx.shape.attr('width', w).attr('x', -w/2);
+        } else if (this.shape == 'circle') {
+            setRadius(w/2);
+        }
+    }
+    setHeight(h) {
+        this.height = h;
+        if (this.shape == 'rect') {
+            this.gfx.shape.attr('height', h).attr('y', -h/2);
+        } else if (this.shape == 'circle') {
+            setRadius(h/2);
+        }
+    }
+    setRadius(r) {
+        this.radius = r;
+        this.gfx.shape.attr('r', r);
+    }
+    setPos(x, y) {
+        this.x = x;
+        this.y = y;
+        var translate = [x, y].join(' ');
+        this.gfx.root.attr('transform', 'translate('+translate+')');
+    }
+
+
+    toMapArea() {
+        var shape = this.shape;
+        if (shape == 'polygon') shape = 'poly';
+        var coords = '';
+        if (this.shape == 'rect') {
+            coords = [this.x-this.width/2, this.y-this.height/2, this.x+this.width/2, this.y+this.height/2].join(',');
+        } else if (this.shape == 'circle') {
+            coords = [this.x, this.y, this.radius].join(',');
+        } else if (this.shape == 'polygon') {
+            coords = [];
+            for (var i=0; i<this.verts.length; i++) {
+                var vert [this.verts[i].x, this.verts[i].y].join(',')
+                coords.push(vert);
+            }
+            coords.join(',');
+        }
+        return {'shape' : shape, 'coords' : coords};
+    }
+
+}
 
 const DEBUG = true;
 function debug(object) {

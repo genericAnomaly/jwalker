@@ -154,10 +154,10 @@ body {
 }
 
 .editor-hotspot-handle.handle-root {
-	/*can't rot(45) a rect around itself :P */
+	/*can't rot(45) a displaced rect around itself :P */
 }
 
-.editor-hotspot-handle+.grabbed {
+.grabbed {
 	cursor: grabbing;
 }
 
