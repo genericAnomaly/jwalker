@@ -394,7 +394,7 @@ class Hotspot {
     constructor(args) {
         this.initialArgs = args;
 
-        //Declare and extract DisplayObject style vars from the args
+        //Declare DisplayObject style vars
         this.shape = args.area.shape;
         this.height = 0;
         this.width = 0;
@@ -403,37 +403,45 @@ class Hotspot {
         this.y = 0;
         this.verts = [];
 
+        //A little on-the-fly keyword translation to keep me from going insane
+        if (this.shape == 'poly') this.shape = 'polygon';
+
         //Set up the visible members
         this.gfx = {};
         this.gfx.root = $(svg('g'));
-        if (this.shape == 'poly') this.shape = 'polygon';
         this.gfx.shape = $(svg(shape));
+        this.gfx.handles = $(svg('g'));
 
+        //Stick them together into a display tree
+        this.gfx.root.appendChild(this.gfx.shape);
+        this.gfx.root.appendChild(this.gfx.handles);
 
         //Turn the coords attribute into useable drawing data
         var coords = args.area.coords.split(',');
         if (this.shape == 'rect') {
-            this.width = coords[2]-coords[0];
-            this.height = coords[3]-coords[1];
-            this.x = (coords[0]+coords[2])/2;
-            this.y = (coords[1]+coords[3])/2;
+            var width = coords[2]-coords[0];
+            var height = coords[3]-coords[1];
+            var x = (coords[0]+coords[2])/2;
+            var y = (coords[1]+coords[3])/2;
+            this.setWidth(width);
+            this.setHeight(height);
+            this.setPos(x, y);
         } else if (this.shape == 'circle') {
-            this.x = coords[0];
-            this.y = coords[1];
-            this.radius = coords[2];
+            var x = coords[0];
+            var y = coords[1];
+            var radius = coords[2];
+            this.setRadius(radius);
+            this.setPos(x, y);
         } else if (this.shape == 'polygon') {
             for (var i=0; i+1<coords.length; i+=2) {
                 this.verts.push({'x' : coords[i], 'y' : coords[i+1]});
+                //TODO: implement "setVertPos(n, pos)" for altering polygons by handle
             }
         }
 
+        //TODO: build the handles
 
 
-        if (this.shape == 'rect') {
-            this.setWidth(width);
-            this.setHeight(height);
-        }
-        if (this.shape == 'circle') this.setRadius(radius);
 
 
 
@@ -464,6 +472,30 @@ class Hotspot {
         this.y = y;
         var translate = [x, y].join(' ');
         this.gfx.root.attr('transform', 'translate('+translate+')');
+    }
+    setVertPos(i, x, y) {
+        var pt = {'x' : x, 'y' : y};
+        this.verts[i] = pt;
+        rebuildPolygon();
+
+
+        /*
+        var pt = [x, y].join(',');
+        var points = this.gfx.shape.attr('points');
+        points = points.split(' ');
+        points[i] = pt;
+        points = points.join(' ');
+        this.gfx.shape.attr('points', points);
+        */
+    }
+
+    rebuildPolygon() {
+        var points [];
+        for (var i=0; i<this.verts.length; i++) {
+            points.push( [ this.verts[i].x, this.verts[i].y ].join(',') );
+        }
+        points = points.join(' ');
+        this.gfx.shape.attr('points', points);
     }
 
 
