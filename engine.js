@@ -148,8 +148,9 @@ function editorLoadRoom(room) {
         g.appendChild(handles);
         //Split out the coordinates into an array
         var coords = hotspot.area.coords.split(',');
+
         //Case Switch (but it's ifs 'cos i don't care for case/switch syntax)
-        if (hotspot.area.shape == 'rect') {
+        if (hotspot.area.shape == 'rectUNCLE') { //See what I did there? all this code is technically still live and easy to read and grab from, but tucked out of the way because RECTUNCLE
             var x = ( parseFloat(coords[0]) + parseFloat(coords[2]) )  /2;
             var y = ( parseFloat(coords[1]) + parseFloat(coords[3]) )  /2;
             var width = coords[2]-coords[0];
@@ -215,6 +216,16 @@ function editorLoadRoom(room) {
 
 
 
+
+
+
+
+        } else if (hotspot.area.shape == 'rect') {
+            var h = new Hotspot(hotspot);
+            h.get$()
+                .attr('class', 'editor-hotspot');
+
+            $('#overlay_svg_hotspot_editor').appendChild(h.get$());
 
 
 
@@ -409,10 +420,11 @@ class Hotspot {
         //Set up the visible members
         this.gfx = {};
         this.gfx.root = $(svg('g'));
-        this.gfx.shape = $(svg(shape));
+        this.gfx.shape = $(svg(this.shape));
         this.gfx.handles = $(svg('g'));
 
         //Stick them together into a display tree
+        //this.gfx.root.data('controller', this); //Is this necessary? I'ma leave it out unless I need it.
         this.gfx.root.appendChild(this.gfx.shape);
         this.gfx.root.appendChild(this.gfx.handles);
 
@@ -421,8 +433,11 @@ class Hotspot {
         if (this.shape == 'rect') {
             var width = coords[2]-coords[0];
             var height = coords[3]-coords[1];
-            var x = (coords[0]+coords[2])/2;
-            var y = (coords[1]+coords[3])/2;
+            //var x = (coords[0]+coords[2])/2;
+            //var y = (coords[1]+coords[3])/2;
+            var x = ( parseFloat(coords[0]) + parseFloat(coords[2]) ) /2;
+            var y = ( parseFloat(coords[1]) + parseFloat(coords[3]) ) /2;
+
             this.setWidth(width);
             this.setHeight(height);
             this.setPos(x, y);
@@ -435,8 +450,8 @@ class Hotspot {
         } else if (this.shape == 'polygon') {
             for (var i=0; i+1<coords.length; i+=2) {
                 this.verts.push({'x' : coords[i], 'y' : coords[i+1]});
-                //TODO: implement "setVertPos(n, pos)" for altering polygons by handle
             }
+            this.rebuildPolygon();
         }
 
         //TODO: build the handles
@@ -445,6 +460,10 @@ class Hotspot {
 
 
 
+    }
+
+    get$() {
+        return this.gfx.root;
     }
 
     setWidth(w) {
@@ -468,6 +487,9 @@ class Hotspot {
         this.gfx.shape.attr('r', r);
     }
     setPos(x, y) {
+        debug('setPos called');
+        debug(x);
+        debug(y);
         this.x = x;
         this.y = y;
         var translate = [x, y].join(' ');
@@ -476,7 +498,7 @@ class Hotspot {
     setVertPos(i, x, y) {
         var pt = {'x' : x, 'y' : y};
         this.verts[i] = pt;
-        rebuildPolygon();
+        this.rebuildPolygon();
 
 
         /*
@@ -490,7 +512,7 @@ class Hotspot {
     }
 
     rebuildPolygon() {
-        var points [];
+        var points = [];
         for (var i=0; i<this.verts.length; i++) {
             points.push( [ this.verts[i].x, this.verts[i].y ].join(',') );
         }
@@ -510,7 +532,7 @@ class Hotspot {
         } else if (this.shape == 'polygon') {
             coords = [];
             for (var i=0; i<this.verts.length; i++) {
-                var vert [this.verts[i].x, this.verts[i].y].join(',')
+                var vert = [this.verts[i].x, this.verts[i].y].join(',');
                 coords.push(vert);
             }
             coords.join(',');
