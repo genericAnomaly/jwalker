@@ -8,27 +8,14 @@
 * ~~Thumbnail all rooms into~~ toggle-able ~~sidebar~~
 	* textbox insta-filter for finding by id *quickly*
 * "Editor" room view
-	* Represent hotspots in this mode with interactive pieces within the SVG overlay
-	 * ~~Implement visible hotspots in the overlay SVG~~
-	 * Implement handles for editable hotspots
-     * Handles define allowed movement: bound X, bound Y, unbound
-		 * Handle movement is reflected by objects they represent (complicated)
-		   * ``poly``
-			   * Arbitrary indexed coords in a polygon
-			 * ``circle``
-			   * Coordinates of a circle
-			   * Radius of a circle
-			 * ``rect``
-				 * Width of a rect (right)
-				 * Height of a rect (bottom)
-				 * X coordinate and width of a rect (left)
-				 * Y coordinate and height of a rect (top)
-				 * X and Y coordinates of a rect (movement)
-				 * Let the corner handles of a rect simply bind the adjacent edge handles.
-	* Bind hotspot movement to the corresponding values in ``hotspot.area`` directly.
-	* "Room properties" where user can edit key/id, img, add hotspots, and configure hotspots
+	* ~~Represent hotspots in this mode with interactive pieces within the SVG overlay~~
+	 	* ~~Implement visible hotspots in the overlay SVG~~
+		* ~~Implement handles for editable hotspots~~
+    	* ~~Handles define allowed movement: bound X, bound Y, unbound~~
+	* ~~Bind hotspot movement to the corresponding values in ``hotspot.area`` directly.~~
+	* "Room properties" where user can edit key/id, img, add hotspots, and configure hotspots **in progress**
 		* at-a-glance room states for inbound and outbound edges
-	* Modifier key or right click to "follow hotspot" in the editor
+	* ~~Modifier key or right click to "follow hotspot" in the editor~~
 	* Shortcut key to "create hotspot to last room"
 * Flexbox chicanery to easily change the editor's view to highlight a certain panel, if that seems necessary
 * Oh by the way, did I mention that for the sake of parity of development, I'm gonna put the editor mode code directly alongside the gameplay mode code and hinge on a boolean. Will this be a terrible effing idea? ![STAY TUNED](https://cdn.discordapp.com/attachments/509546131852886017/579533942957277195/unknown.png)
