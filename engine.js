@@ -223,8 +223,8 @@ class DisplayElement {
         //Declare state variables
         this.x = 0;
         this.y = 0;
-        this.children = [];
-        this.parent = null;
+        //this.children = []; //hold off on for now this k?
+        //this.parent = null;
 
         //Build an empty boy
         this.gfx = {};  //Hey! NB! this.gfx is not hierarchical! it might look like that since it has a root in it but it's not! maybe it should be? MAYBE? like, this.gfx.root.children[i]
@@ -244,24 +244,6 @@ class DisplayElement {
         return this.gfx.root;
     }
 
-    /*
-    getLocalCoords(screenX, screenY) {
-        //for mouse event `e`, return the localised coordinates of the mouse event within the SVG element
-        //powered by some js magic I still don't understand discovered at https://stackoverflow.com/questions/12752519/svg-capturing-mouse-coordinates until this functionality becomes native
-
-        debug(this.parent);
-        var context = this.parent.gfx.root[0]; //this.parent should be populated in the current flow but might need greater assurance it'll be populated
-
-        //Get the tranformation matrix for screen coordinates to document coordinates by inverting the doc-to-screen matrix
-        var transform = context.getScreenCTM().inverse();
-
-        var pt = context.createSVGPoint();
-        pt.x = x;
-        pt.y = y;
-        return pt.matrixTransform(transform);
-        //NB: This appears to generate a significant bug in Mozilla Firefox when the main div is absolutely positioned and transformed. Commenting out that styling for now.
-    }
-    */
 
 }
 
@@ -345,8 +327,9 @@ class Handle extends DisplayElement {
 }
 
 
-class Hotspot {
+class Hotspot extends DisplayElement {
     constructor(args) {
+        super(args)
         this.initialArgs = args;
 
         //Declare DisplayObject style vars
@@ -354,22 +337,17 @@ class Hotspot {
         this.height = 0;
         this.width = 0;
         this.radius = 0;
-        this.x = 0;
-        this.y = 0;
         this.verts = [];
 
         //A little on-the-fly keyword translation to keep me from going insane
         if (this.shape == 'poly') this.shape = 'polygon';
 
         //Set up the visible members
-        this.gfx = {};
-        this.gfx.root = $(svg('g'));
         this.gfx.shape = $(svg(this.shape))
             .addClass('editor-hotspot-area');
         this.gfx.handles = $(svg('g'));
 
         //Stick them together into a display tree
-        //this.gfx.root.data('controller', this); //Is this necessary? I'ma leave it out unless I need it.
         this.gfx.root.appendChild(this.gfx.shape);
         this.gfx.root.appendChild(this.gfx.handles);
 
@@ -439,10 +417,6 @@ class Hotspot {
         }
     }
 
-    get$() {
-        return this.gfx.root;
-    }
-
     setWidth(w) {
         this.width = w;
         if (this.shape == 'rect') {
@@ -462,12 +436,6 @@ class Hotspot {
     setRadius(r) {
         this.radius = r;
         this.gfx.shape.attr('r', r);
-    }
-    setPos(x, y) {
-        this.x = x;
-        this.y = y;
-        var translate = [x, y].join(' ');
-        this.gfx.root.attr('transform', 'translate('+translate+')');
     }
     setVertPos(i, x, y) {
         var pt = {'x' : x, 'y' : y};
