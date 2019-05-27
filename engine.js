@@ -48,6 +48,9 @@ function startEditor() {
 function go(id) {
     div = buildRoom(id);
     $('#room').empty().append(div);
+
+
+    if (editorMode) editorLoadRoom(adventure.rooms[id]);
 }
 
 function text(args) {
@@ -117,8 +120,6 @@ function buildRoom(id) {
         map.append(area);
     }
 
-    if (editorMode) editorLoadRoom(room);
-
     var div = $('<div></div>')
         .append(img)
         .append(map);
@@ -133,8 +134,8 @@ function buildRoom(id) {
 function editorLoadRoom(room) {
     //Clear the overlay
     $('#overlay_svg_hotspot_editor').empty();
+    //Load in hotspots
     for (var hotspot_id in room.map){
-        //Grab the hotspot
         var hotspot = new Hotspot(room.map[hotspot_id]);
         $('#overlay_svg_hotspot_editor').appendChild(hotspot.get$());
     }
@@ -147,20 +148,13 @@ function svg(tag) {
     return document.createElementNS('http://www.w3.org/2000/svg', tag)
 }
 
-function createSVGElementIn(tag, parent_id) {
-    var p = document.getElementById(parent_id);
-    var e = document.createElementNS(p.namespaceURI, tag);
-    p.appendChild(e);
-    return e;
-}
-
 
 
 
 
 function getLocalCoords(e, context) {
     //for mouse event `e`, return the localised coordinates of the mouse event within the SVG element
-    //powered by some js magic I still don't understand discovered at https://stackoverflow.com/questions/12752519/svg-capturing-mouse-coordinates until this functionality becomes native
+    //I understand this mostly now, but a thorough explanation is at https://stackoverflow.com/questions/12752519/svg-capturing-mouse-coordinates
 
     //If we passed jQuery stuff instead of native, just yoink that.
     if (e.hasOwnProperty('originalEvent')) e = e.originalEvent;
@@ -190,32 +184,6 @@ $.fn.appendChild = function(child) {
 
 
 
-function createHandle() {
-    var g = $().svg('g');
-    var rect = $().svg('rect')
-        .attr('width', 8)
-        .attr('height', 8)
-        .addClass('editor-hotspot-handle')
-    g.appendChild(rect);
-    g.data('constrain-axis', 'none');
-    g.constrain = function (axis) {
-        return this.data('constrain-axis', axis);
-    }
-    g.setPos = function(x, y) {
-        debug('setpos(' + x + ', ' + y + ')');
-        if (this.data('constrain')=='x') x='0';
-        if (this.data('constrain')=='y') y='0';
-        this.attr('transform', 'translate(' + x + ' ' + y + ')');
-        debug('translate(' + x + ' ' + y + ')');
-    }
-    g.on('mousedown', function() {
-        $(this).addClass('grabbed');
-    });
-    return g;
-}
-
-
-
 class DisplayElement {
     constructor(args) {
         //stash this for some reason i guess? TODO: remove me later if this never ends up getting used
@@ -223,8 +191,6 @@ class DisplayElement {
         //Declare state variables
         this.x = 0;
         this.y = 0;
-        //this.children = []; //hold off on for now this k?
-        //this.parent = null;
 
         //Build an empty boy
         this.gfx = {};  //Hey! NB! this.gfx is not hierarchical! it might look like that since it has a root in it but it's not! maybe it should be? MAYBE? like, this.gfx.root.children[i]
@@ -246,7 +212,6 @@ class DisplayElement {
 
 
 }
-
 class Handle extends DisplayElement {
     constructor(args) {
         super(args)
@@ -325,8 +290,6 @@ class Handle extends DisplayElement {
     }
 
 }
-
-
 class Hotspot extends DisplayElement {
     constructor(args) {
         super(args)
