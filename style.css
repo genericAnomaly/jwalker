@@ -6,12 +6,12 @@
 .arrow-d {cursor: url(gfx/cursor/arrow-d.png) 20 45, s-resize;}
 .action-examine {cursor: zoom-in;}
 
-#adventure {
+#main {
 	width: 100%;
 	position: absolute;
-	left: 50%;
+	/*left: 50%;
 	top: 50%;
-	transform: translate(-50%, -50%);
+	transform: translate(-50%, -50%);*/
 	display: flex;
 	justify-content: center;
 }
@@ -22,8 +22,11 @@
 	-ms-user-select: none; /* IE 10+ */
 }
 
+#game {
+	position: relative;
+}
 #overlay {
-    position: fixed;
+    position: absolute;
     z-index: 1;
     left: 0;
     top: 0;
@@ -31,6 +34,7 @@
     height: 100%;
     overflow: hidden;
     pointer-events: none;
+	overflow: visible;
 }
 #overlay text {
 	fill: #fff;
@@ -126,9 +130,82 @@ body {
 }
 
 
+.editor-hotspot-area {
+	fill: rgba(0, 255, 255, 0.5);
+	stroke: #fff;
+	stroke-width: 2px;
+	stroke-dasharray: 6 4;
+	stroke-dashoffset: 0;
+	mix-blend-mode: screen;
+	animation: marching-ants 1s linear forwards infinite;
+}
+g:hover>.editor-hotspot-area {
+	fill: rgba(255, 0, 255, 0.5);
+}
+
+@keyframes marching-ants {
+	to {
+		stroke-dashoffset: 10;
+	}
+}
+
+.editor-handle rect {
+	transform: translate(-4px, -4px);
+	fill: #fff;
+	stroke: #000;
+	stroke-width: 2px;
+}
+.editor-handle.handle-root rect {
+	transform: rotate(45deg) translate(-4px, -4px);
+}
+
+.editor-handle {
+	cursor: grab;
+}
+
+.editor-handle.handle-resize-ns {
+	cursor: ns-resize;
+}
+.editor-handle.handle-resize-ew {
+	cursor: ew-resize;
+}
 
 
 
+
+.editor-hotspot-handle {
+	transform: translate(-4px, -4px);
+	fill: #fff;
+	stroke: #000;
+	stroke-width: 1px;
+	cursor: grab;
+}
+
+.editor-hotspot-handle.handle-root {
+	/*can't rot(45) a displaced rect around itself :P */
+}
+
+.grabbed {
+	cursor: grabbing;
+}
+
+#overlay_svg {
+	overflow: visible;
+}
+#overlay_svg_hotspot_editor {
+	pointer-events: visibleFill;
+}
+#overlay_svg_hotspot_editor.passthru {
+	pointer-events: none;
+}
+
+
+
+
+.editor-arrow-n {
+	/*TODO: https://stackoverflow.com/questions/13914868/using-css-approach-how-to-set-an-image-to-fill-a-path-in-svg*/
+	/*Complicated. Later.*/
+}
 
 
 

@@ -16,6 +16,10 @@ var adventure = {
                 'door'      :   {
                     'area'      :   {'shape' : 'rect', 'coords' : '577,187,695,434', 'class' : 'arrow-n'},
                     'click'     :   {'go' : 'outside'}
+                },
+                'lamp'      :   {
+                    'area'      :   {'shape' : 'circle', 'coords' : '700,120,75', 'class' : 'arrow-n'},
+                    'click'     :   {'go' : 'outside'}
                 }
             }
         },

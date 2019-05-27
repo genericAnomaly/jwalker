@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script>
+
+		//parameters
+		var time = null;
+		var theta = 0;
+		var period = 8; //seconds per rotation
+
+
+
+		var phasor;
+		var waveform;
+
+
+    $( function() {
+			//instantiate new controls
+			phasor = new Phasor();
+			waveform = new Waveform();
+			//set 'em up'
+			waveform.setFunction(phasor.signal.bind(phasor))
+
+      //Start the animation
+      window.requestAnimationFrame(animationFrameHandler);
+    });
+
+
+
+    function animationFrameHandler(ts) {
+			//timing calculations
+			if (!time) time = ts;
+      var deltaTime = ts-time;
+      time = ts;
+      theta += (Math.PI*2)*deltaTime/(1000*period);
+
+			//keep it movin'
+      window.requestAnimationFrame(animationFrameHandler);
+
+
+			phasor.animate(theta);
+			waveform.updateGraphics(theta);
+			waveform.graphFunction(phasor.signal.bind(phasor));
+
+    }
+
+
+
+
+
+
+
+
+
+
+		class SVGPlot {
+			//Encapsulates creating and working with SVGs for the purpose of plotting/graphing
+			constructor(args) {
+				this.args = args;
+				//takes an argument object like this
+				/*{
+					id				: 'test',
+					padding		: 10,
+					interval  : 50,
+					intervalX	: 157,
+					minX      : 0,
+					maxX      : 314,
+					minY      : -100,
+					maxY      : 100,
+					drawYAxis : false
+				}*/
+				//fill out implicit arg values
+				if (this.args.intervalX == null) this.args.intervalX = this.args.interval;
+				if (this.args.intervalY == null) this.args.intervalY = this.args.interval;
+				if (this.args.paddingX == null) this.args.paddingX = this.args.padding;
+				if (this.args.paddingY == null) this.args.paddingY = this.args.padding;
+				if (this.args.drawXAxis == null) this.args.drawXAxis = true;
+				if (this.args.drawYAxis == null) this.args.drawYAxis = true;
+
+				//build the SVG element and put it at the end of the document
+				this.svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+				this.svg.setAttribute('id', this.args.id)
+				this.svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg')
+				this.svg.setAttribute('viewBox', `${this.args.minX-this.args.paddingX} ${this.args.minY-this.args.paddingY} ${this.args.maxX-this.args.minX+2*this.args.paddingX} ${this.args.maxY-this.args.minY+2*this.args.paddingY}`);
+				document.body.appendChild(this.svg);
+				//create a point to use when localising coordinates
+				this.pt = this.svg.createSVGPoint();
+				//build the grid
+				this.grid = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+				this.grid.setAttribute('id', `${this.args.id}-grid`)
+				this.grid.innerHTML = this.generateGrid();
+				this.svg.appendChild(this.grid);
+
+				//add a list for dynamic child elements
+				this.children = [];
+
+			}
+
+
+			generateGrid() {
+				//builds the inner markup for an SVG plot based on the values stored in this.args
+				//background area
+				var plot = `<rect x="${this.args.minX}" y="${this.args.minY}" width="${this.args.maxX-this.args.minX}" height="${this.args.maxY-this.args.minY}" class="graph-area" />`;
+				//axes
+				if (this.args.drawXAxis == true) plot += `<line x1="${this.args.minX}" y1="0" x2="${this.args.maxX}" y2="0" class="graph-axis" />`;
+				if (this.args.drawYAxis == true) plot += `<line x1="0" y1="${this.args.minY}" x2="0" y2="${this.args.maxY}" class="graph-axis" />`;
+				//intervals
+				for (var i=this.args.minX-(this.args.minX%this.args.intervalX)+this.args.intervalX; i<this.args.maxX; i+=this.args.intervalX) plot += `<line x1="${i}" y1="${this.args.minY}" x2="${i}" y2="${this.args.maxY}" class="graph-grid" />`;
+				for (var i=this.args.minY-(this.args.minY%this.args.intervalY)+this.args.intervalY; i<this.args.maxY; i+=this.args.intervalY) plot += `<line x1="${this.args.minX}" y1="${i}" x2="${this.args.maxX}" y2="${i}" class="graph-grid" />`;
+				return plot;
+			}
+
+			getLocalCoords(e) {
+				//for mouse event `e`, return the localised coordinates of the mouse event within the SVG element
+				//powered by some js magic discoved at https://stackoverflow.com/questions/12752519/svg-capturing-mouse-coordinates until this functionality becomes native
+				this.pt.x = e.clientX;
+				this.pt.y = e.clientY;
+				return this.pt.matrixTransform(this.svg.getScreenCTM().inverse());
+			}
+
+			addChild(e) {
+				e.parent = this;
+				this.children.add(e);
+			}
+
+
+			addLabel(args) {
+				args = {
+					value	: `f(&theta;) = r &middot; sin(&theta; + <tspan>a</tspan>)`,
+					attrs	: {
+						dx	: 10,
+						dy	: -80
+					}
+				}
+				this.label = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+				this.label.innerHTML = `<text>${args.value}</text>`;
+				$(this.label).attr('id', `${this.id}-label`).addClass('label');
+				for (var attr in args.attrs) {
+					$(this.label).find('text').attr(attr, args.attrs[attr]);
+				}
+				this.svg.appendChild(this.label);
+				//this.updateGraphics();
+
+			}
+
+
+		}
+
+
+
+		class Phasor {
+
+			constructor() {
+				this.args = {
+					id				: 'phasor',
+					padding		: 10,
+					interval  : 50,
+					minX      : -100,
+					maxX      : 100,
+					minY      : -100,
+					maxY      : 100
+				}
+
+				this.plot = new SVGPlot(this.args);
+
+
+				this.shadow = new Handle({
+					id		: 'shadow',
+					plot	: this.plot,
+					x			: 0,
+					y			: 0
+				})
+
+
+				this.control = new Handle({
+					id		: 'control',
+					plot	: this.plot,
+					x			: 50,
+					y			: -50
+				})
+
+				//TODO: separate "addChild" junk to put them in the plot in the correct order and set .plot without needing to pass arguments to the constructor
+
+				//
+				this.control.addClass('input');
+				this.control.makeGrabbable();
+				this.control.addAngleLabel();
+				this.shadow.addClass('shadow');
+
+
+				//TODO: clean up how these guys get joined to the SVG for depth sorting
+
+
+			}
+
+
+			animate(theta) {
+				var r = Math.sqrt( Math.pow( this.control.x, 2) + Math.pow(this.control.y, 2) );
+
+				this.shadow.x = r * Math.cos(theta);
+				this.shadow.y = -(r * Math.sin(theta)); //negative to adjust for y axis conventions
+				this.shadow.updateGraphics();
+
+
+			}
+
+			//here's the function this represents
+			signal (theta) {
+				var thetaOffset	= Math.atan2(-this.control.y, this.control.x);
+				var radius = Math.sqrt( Math.pow(this.control.x, 2) + Math.pow(this.control.y, 2));
+
+				var t = theta + thetaOffset;
+				return -Math.sin(t)*radius;
+				//NOTA BENE:
+				//This function returns negative because its return is always used for the y value in a function over time graph, and we're using negative values for that 'cos disagreement between conventions for y positivity.
+				//SO
+				//If we ever resolve that this should return without the sign flip
+			}
+
+
+		}
+
+
+
+
+		class Handle {
+			constructor (args) {
+				this.args = args;
+
+				//parent
+				this.plot = args.plot;
+
+				//state vars
+				this.x = args.x;
+				this.y = args.y;
+				this.grabbed = false;
+
+				//handle
+				this.handle = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+				this.handle.innerHTML = `<circle cx="0" cy="0" r="5" />`;
+				$(this.handle).attr('id', `${this.args.id}-handle`).addClass('handle');
+
+				//hypotenuse
+				this.hypotenuse = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+				this.hypotenuse.innerHTML = `<line x1="0" y1="0" x2="0" y2="0"/>`;
+				$(this.hypotenuse).attr('id', `${this.args.id}-hypotenuse`).addClass('hypotenuse');
+
+
+
+				//opposite side
+				this.opposite = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+				this.opposite.innerHTML = `<line x1="0" y1="0" x2="0" y2="0"/>`;
+				$(this.opposite).attr('id', `${this.args.id}-opposite`).addClass('opposite');
+
+
+				this.plot.svg.appendChild(this.opposite);
+				this.plot.svg.appendChild(this.hypotenuse);
+				this.plot.svg.appendChild(this.handle);
+
+
+				this.updateGraphics();
+			}
+
+			addAngleLabel () {
+				//TODO: read in stuff like size and name from args
+				this.angle = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+				this.angle.innerHTML = `<path /><text x="-4" y="0" textLength="8" lengthAdjust="spacingAndGlyphs">a</text>`;
+				$(this.angle).attr('id', `${this.args.id}-angle`).addClass('label');
+				this.plot.svg.appendChild(this.angle);
+				this.updateGraphics();
+				//TODO: consider moving all these add-ons into self-contained subclasses of a "Component" superclass, and adding them with a modular addComponent function
+			}
+
+			addClass(c) {
+				$(this.handle).addClass(c);
+				$(this.hypotenuse).addClass(c);
+				$(this.angle).addClass(c);
+				$(this.opposite).addClass(c);
+			}
+
+
+			makeGrabbable() {
+				this.handle.classList.add('grabbable');
+				//Schedule events
+				var p = this;	//declare p in this scope so we can call back to it during events (TODO: look up what that scope is called)
+				//TODO: consider switching these to jQuery. it's nice that we can do it without it but with all the nonsense from IE it's probs better to just use it
+				this.handle.addEventListener('mousedown', function() {p.grabbed=true; this.classList.add('grabbed');});
+				this.handle.addEventListener('mouseup', function() {p.grabbed=false; this.classList.remove('grabbed');});
+				this.plot.svg.addEventListener('mouseup', function() {p.handle.dispatchEvent(new Event('mouseup'));});
+				this.plot.svg.addEventListener('mouseleave', function() {p.handle.dispatchEvent(new Event('mouseup'));});
+				this.plot.svg.addEventListener('mousemove', function(e){
+					if(p.grabbed==false) return;
+					var localpt = p.plot.getLocalCoords(e);
+					//Constrain to graph area
+					//TODO: more graceful/soft handling of edge case, add a deadzone where it's constrained before it kills the draggin state
+					//if (localpt.x<p.plot.args.minX || localpt.y<p.plot.args.minY || localpt.x>p.plot.args.maxX || localpt.y>p.plot.args.maxY) return;
+
+					var h = Math.sqrt( Math.pow(localpt.x, 2)+Math.pow(localpt.y, 2) );
+					var maxH = p.plot.args.maxX //todo: add a specific value in the plot for a circular dead-zone?
+					if (h > maxH ) {
+						var t = Math.atan2(localpt.y, localpt.x);
+						localpt.x = Math.cos(t)*maxH;
+						localpt.y = Math.sin(t)*maxH;
+					}
+
+					//set the position
+					p.x = localpt.x;
+					p.y = localpt.y;
+					//update the graphics
+					p.updateGraphics();
+				});
+			}
+
+			updateGraphics() {
+
+				this.handle.setAttribute('transform', `translate(${this.x}, ${this.y})`);
+				$(this.hypotenuse).find('line').attr('x2', this.x).attr('y2', this.y);
+				$(this.opposite).find('line').attr('x1', this.x).attr('x2', this.x).attr('y2', this.y);
+
+				//$('#opposite-demo line').attr('x1', x).attr('x2', x).attr('y2', y);
+
+				if (this.angle != null) {
+					var h = Math.sqrt( Math.pow(this.x, 2) + Math.pow(this.y, 2) );
+					var t = Math.atan2(this.y, this.x);
+					var normalised = {
+						x : Math.cos(t),
+						y : Math.sin(t)
+					}
+					//TODO: move magic number to a const or arg
+					var labelRadius = 16;
+					if (h < labelRadius) labelRadius = h; //shrink the label radius to accommodate small rays
+					var largeArc = 0;
+					if (t > 0) largeArc = 1; //atan2 returns between -PI and PI, not 0-2PI, so we check for a large arc this way
+					var d = `M ${labelRadius} 0 A ${labelRadius} ${labelRadius} 0 ${largeArc} 0 ${normalised.x*labelRadius} ${normalised.y*labelRadius}`;
+
+					$(this.angle).find('path').attr('d', d);
+
+					if (largeArc==1) t+=Math.PI*2;
+					$(this.angle).find('text').attr('dx', Math.cos(t/2)*labelRadius*1.3);
+					$(this.angle).find('text').attr('dy', Math.sin(t/2)*labelRadius*1.15);
+
+				}
+
+			}
+
+
+		}
+
+
+
+
+		class Waveform {
+
+			constructor() {
+				this.args = {
+					id				: 'waveform',
+					padding		: 10,
+					intervalY : 50,
+					intervalX	: Math.PI*50,
+					minX      : 0,
+					maxX      : Math.PI*100,
+					minY      : -100,
+					maxY      : 100,
+					drawYAxis	: false
+				}
+				this.scale = (this.args.maxX-this.args.minX)/(2*Math.PI);
+
+				this.plot = new SVGPlot(this.args);
+
+				this.ft = function() {return 0};
+
+
+
+				//the path
+				this.path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+				//this.path.g.innerHTML = `<path d="" stroke="black" fill="none" />`;	//TODO: replace hardcoded attributes with css
+				//$(this.path.g).attr('id', `${this.args.id}-path`);
+				this.plot.svg.appendChild(this.path);
+				//TODO: order this stuff. again. and determine where we want to use g encapsulation
+
+
+
+				//add points
+				this.shadow = new Handle({
+					id		: 'shadow',
+					plot	: this.plot,
+					x			: 0,
+					y			: 0
+				})
+				this.control = new Handle({
+					id		: 'control',
+					plot	: this.plot,
+					x			: 0,
+					y			: 0
+				})
+
+				this.control.addClass('input');
+				this.shadow.addClass('shadow');
+
+
+				//Label
+				this.plot.addLabel({});
+
+
+
+			}
+
+			setFunction(f) {
+				this.ft = f;
+			}
+			graphFunction(f) {
+				var interval = 5;	//defines the definition of the curve; lower is better
+				var scale = 50; //pixels per radian //TODO: make this global to the object
+
+				//construct the curve
+				var d = `M 0 ${f(0)} `;
+				for (var i=0; i<=2*Math.PI*this.scale; i+=interval) d += `L ${i} ${f(i/this.scale)} `
+				d += `L ${2*Math.PI*this.scale} ${f(2*Math.PI)} `
+				//apply it to the path
+				this.path.setAttribute('d', d);
+
+				//update the input marker
+				//$('#plot-input circle').attr('cy', 60);
+				this.control.y = f(0);
+				this.control.updateGraphics();
+			}
+
+			updateGraphics (theta) {
+				//using the global variable for period length
+				theta += Math.atan2(phasor.control.y, phasor.control.x);
+				theta = theta % (Math.PI*2);
+
+
+				var scaleX = 50; //this needs to be a setting attached to the waveform plot's params, shared in plotWaveform
+				//$(this.control).attr('transform', `translate(${theta*scaleX}, ${this.ft(theta)})`);
+
+				this.shadow.x = theta*scaleX;
+				this.shadow.y = this.ft(theta);
+				this.shadow.updateGraphics();
+			}
+
+		}
+
+
+
+
+  </script>
+
+	<style>
+	#phasor {height: 400px;}
+	#waveform {height: 400px;}
+
+	#waveform .hypotenuse {
+		display: none;
+	}
+
+	.grabbable {cursor: grab;}
+	.grabbable.grabbed {cursor: grabbing;}
+	.grabbable circle {
+		transition-property: transform;
+		transition-duration: 0.2s;
+	}
+	.grabbable:hover circle {transform: scale(1.25, 1.25);}
+	.grabbable.grabbed circle {
+		transition-duration: 0.05s;
+		transform: scale(0.8, 0.8);
+	}
+
+	.label path {
+		stroke-width: 0.5;
+	}
+	.label text {
+		font-style: italic;
+		pointer-events: none;
+	}
+
+	.opposite line {
+		stroke-width: 0.5;
+		stroke-dasharray: 6 4;
+	}
+
+	path {
+		fill: none;
+		stroke: #000;
+	}
+
+	g.input circle {fill: #00f;}
+	g.input line {stroke: #00f;}
+	g.shadow circle {fill: #900;}
+	g.shadow line {stroke: #900;}
+
+
+	.graph-area {fill: #ffc;}
+	.graph-axis {stroke: #888;}
+	.graph-grid {stroke: #bbb; stroke-width: 0.5; stroke-dasharray: 1}
+	</style>
+
+</head>
+<body>
+  <p>content</p>
+
+
+</body>
