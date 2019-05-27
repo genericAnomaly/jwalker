@@ -164,7 +164,7 @@ body {
 	stroke-width: 2px;
 }
 .editor-handle.handle-root rect {
-	transform: translate(-4px, -4px) rotate(45deg);
+	transform: rotate(45deg) translate(-4px, -4px);
 }
 
 .editor-handle {

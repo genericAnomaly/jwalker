@@ -38,6 +38,10 @@ function startEditor() {
         grabbed.removeClass('grabbed');
     });
 
+    $('#button-export').on('click', function() {
+        exportAdventure();
+    })
+
 }
 
 
@@ -50,7 +54,7 @@ function go(id) {
     $('#room').empty().append(div);
 
 
-    if (editorMode) editorLoadRoom(adventure.rooms[id]);
+    if (editorMode) editorLoadRoom(id);//adventure.rooms[id]);
 }
 
 function text(args) {
@@ -131,13 +135,46 @@ function buildRoom(id) {
 
 
 
-function editorLoadRoom(room) {
+function editorLoadRoom(id) {
+
+    var room = adventure.rooms[id];
+
     //Clear the overlay
     $('#overlay_svg_hotspot_editor').empty();
+    //$('#editor-properties').empty();
+
+
+    //$('#editor-properties').empty();
+    $('#editor-properties').html(`
+        <br>
+        ID: <strong>foyer</strong><button>[change]</button><br>
+        Image: <input value="foyer.png">
+        <br><br>
+        n edges out<br>
+        n edges in<br>
+        <br>
+        <strong>Hotspots</strong>
+        `);
+    $('#editor-properties').find('input')
+        .data('room-id', id)
+        .on('change', function() {
+            debug('img set to ' + $(this).val());
+            var id = $(this).data('room-id')
+            adventure.rooms[id].img = $(this).val();
+            $('#room').find('img').attr('src', 'img/'+ $(this).val());
+            $('#thumbnail-'+id).attr('src', 'img/'+ $(this).val());
+        })
+
     //Load in hotspots
     for (var hotspot_id in room.map){
+        //Make the DisplayElement Hotspot
         var hotspot = new Hotspot(room.map[hotspot_id]);
         $('#overlay_svg_hotspot_editor').appendChild(hotspot.get$());
+
+        //Make properties for it
+        var properties = new HotspotProperties(hotspot_id, id);
+        $('#editor-properties').append(properties.$);
+
     }
 
 
@@ -437,8 +474,73 @@ class Hotspot extends DisplayElement {
 
 }
 
+class HotspotProperties {
+
+    constructor (id, room_id) {
+        this.room_id = room_id;
+        this.hotspot_id = id;
+
+        var room = adventure.rooms[room_id];
+        var hotspot = room.map[id];
+
+        this.$ = $('<div/>');
+        //okay. let's just do this the sloppy way for now.
+        this.$
+            .append($('<hr/>'))
+            .append($('<span/>').html('ID: '))
+            .append($('<span/>').html(id).attr('id', 'label-' + id))
+            .append($('<button/>').html('[change]'))
+
+        this.table = $('<table/>');
+        this.$.append(this.table);
+        //too late.
+        debug(room);
+        debug(hotspot);
+        this.addProperty('cursor', hotspot.area.class, function() {
+            var room_id = $(this).data('room-id');
+            var hotspot_id = $(this).data('hotspot-id');
+            adventure.rooms[room_id].map[hotspot_id].area.class = $(this).val();
+        } )
+        this.addProperty('click.go', hotspot.click.go, function() {
+            //debug('!')
+            var room_id = $(this).data('room-id');
+            var hotspot_id = $(this).data('hotspot-id');
+            adventure.rooms[room_id].map[hotspot_id].click.go = $(this).val();
+        } )
+        //TODO:hotspot.click.text
+    }
+
+    addProperty(name, value, callback) {
+        var row = $('<tr/>');
+        var label = $('<td/>').html(name);
+        var inputCell = $('<td/>')
+        var input = $('<input/>');
+        input.data('room-id', this.room_id)
+        input.data('hotspot-id', this.hotspot_id)
+        input.val(value);
+        input.on('change', callback)
+        row.append(label).append(inputCell.append(input));
+        this.table.append(row);
+    }
+
+}
 
 
+var exportURI = null;
+function exportAdventure() {
+    debug('attempting export');
+    var json = JSON.stringify(adventure);
+    var data = new Blob([json], {type : 'application/json'});
+    debug(data);
+    if (exportURI !== null) {
+        window.URL.revokeObjectURL(exportURI);
+    }
+    exportURI = window.URL.createObjectURL(data);
+    //weird but works:  https://stackoverflow.com/questions/21012580/is-it-possible-to-write-data-to-file-using-only-javascript
+    $('#button-export')
+        .attr('href', exportURI)
+        .attr('download', adventure.meta.name + '-' + Date.now() + '.json' );
+}
 
 
 const DEBUG = true;
