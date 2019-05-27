@@ -1,9 +1,16 @@
 var time;
-var editorMode = true;
+var editorMode = false;
 
 //Big Red Button
 function start() {
-    if (editorMode) startEditor();
+    if(window.location.hash == '#editor') {
+        editorMode = true;
+        startEditor();
+        $('#editor-roomlist').show();
+        $('#editor-properties').show();
+        $('#button-export').show();
+    }
+
     go(adventure.meta.start);
     window.requestAnimationFrame(onAnimationFrameHandler);
 }
