@@ -19,6 +19,7 @@ function start() {
 
 
 function startEditor() {
+    $('#roomlist-panel').empty();
     for (var id in adventure.rooms) {
         var img = $('<img>')
             .attr('src', 'img/' + adventure.rooms[id].img)
@@ -582,6 +583,7 @@ function exportAdventure() {
 function enableLoading() {
     //https://www.html5rocks.com/en/tutorials/file/dndfiles/
     var dropZone = $('#drop-zone')[0];
+    dropZone = document;
     dropZone.addEventListener('dragover', function(e) {
         e.stopPropagation();
         e.preventDefault();
