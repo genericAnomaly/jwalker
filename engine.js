@@ -135,192 +135,8 @@ function editorLoadRoom(room) {
     $('#overlay_svg_hotspot_editor').empty();
     for (var hotspot_id in room.map){
         //Grab the hotspot
-        var hotspot = room.map[hotspot_id];
-        //Create a group for this hotspot and its handles and populate it
-        var g = $(svg('g'))
-            .attr('id', 'editor_hotspot_'+hotspot_id);
-        var handles = $(svg('g'));
-        var shape = $(svg('g'));
-        g.appendChild(shape);
-        g.appendChild(handles);
-        //Split out the coordinates into an array
-        var coords = hotspot.area.coords.split(',');
-
-        //Case Switch (but it's ifs 'cos i don't care for case/switch syntax)
-        if (hotspot.area.shape == 'rectUNCLE') { //See what I did there? all this code is technically still live and easy to read and grab from, but tucked out of the way because RECTUNCLE
-            var x = ( parseFloat(coords[0]) + parseFloat(coords[2]) )  /2;
-            var y = ( parseFloat(coords[1]) + parseFloat(coords[3]) )  /2;
-            var width = coords[2]-coords[0];
-            var height = coords[3]-coords[1];
-
-            var area = $(svg('rect'));
-
-
-
-            g.setPos = function(x, y) {
-                return this
-                    .attr('transform', 'translate(' + x +' '+ y + ')' )
-                    .data('x', x)
-                    .data('y', y);
-            };
-
-
-            area.setWidth = function(w) {
-                return this.attr('width', w).attr('x', -w/2);
-            };
-            area.setHeight = function(h) {
-                return this.attr('height', h).attr('y', -h/2);
-            };
-
-
-            g.setPos(x, y);
-            area.setWidth(coords[2]-coords[0]);
-            area.setHeight(coords[3]-coords[1]);
-
-
-            var root = createHandle();
-            root
-                .on('updatePosition', {'g' : g}, function(e, args) {
-                    e.data.g.setPos(args.pt.x, args.pt.y);
-                })
-                .on('mousedown', function() {
-                    $(this).addClass('grabbed');
-                })
-            handles.appendChild(root);
-
-            var west = createHandle();
-            west.data('target', g)
-            west.setPos(width/2, 0);
-
-            handles.appendChild(west);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        } else if (hotspot.area.shape == 'rect') {
-            var h = new Hotspot(hotspot);
-            h.get$()
-                ;
-
-            $('#overlay_svg_hotspot_editor').appendChild(h.get$());
-
-
-
-
-
-
-
-
-
-
-        } else if (hotspot.area.shape == 'circle') {
-            var area = $(svg('circle'))
-                .attr('cx', coords[0])
-                .attr('cy', coords[1])
-                .attr('r', coords[2]);
-            var radius = $().svg('rect')
-                .attr('x', coords[0])
-                .attr('y', coords[1]-coords[2])
-                .attr('width', 8)
-                .attr('height', 8)
-                .addClass('editor-hotspot-handle')
-                .on('mousedown', function() {
-                    $(this).addClass('grabbed');
-                })
-                .on('updatePosition', {'for' : area}, function(e, args) {
-                    //Reposition the handle (can be excised if other position stuff goes on in for)
-                    $(this).attr('x', args.pt.x);
-                    $(this).attr('y', args.pt.y);
-                    var rad = Math.sqrt(Math.pow(e.data.for.attr('cx')-args.pt.x, 2)+Math.pow(e.data.for.attr('cy')-args.pt.y, 2));
-                    e.data.for.attr('r', rad);
-
-                });
-                handles.appendChild(radius);
-            var root = $().svg('rect')
-                .attr('x', coords[0])
-                .attr('y', coords[1])
-                .attr('width', 8)
-                .attr('height', 8)
-                .addClass('editor-hotspot-handle')
-                .addClass('handle-root')
-                .on('mousedown', function() {
-                    $(this).addClass('grabbed');
-                })
-                .on('updatePosition', {'for' : area}, function(e, args) {
-                    //Reposition the handle (can be excised if other position stuff goes on in for)
-                    $(this).attr('x', args.pt.x);
-                    $(this).attr('y', args.pt.y);
-                    e.data.for.attr('cx', args.pt.x);
-                    e.data.for.attr('cy', args.pt.y);
-                });
-            handles.appendChild(root);
-
-            //OK so bear w/ me here.
-            //I think we just need to move the container, not the primitives.
-
-        } else if (hotspot.area.shape == 'poly') {
-            var area = $(svg('polygon'));
-            var points = ''
-            for (var i=0; i<coords.length; i+=2) {
-                points += coords[i] + ',' + coords[i+1];
-                if (i+2<coords.length) points += ' ';//add a space on all but the last pair
-                var handle = $(svg('rect'))
-                    .attr('x', coords[i])
-                    .attr('y', coords[i+1])
-                    .attr('width', 8)
-                    .attr('height', 8)
-                    .addClass('editor-hotspot-handle')
-                    .on('updatePosition', {'i' : i, 'poly' : area}, function(e, args) {
-                        //Reposition the handle
-                        $(this).attr('x', args.pt.x);
-                        $(this).attr('y', args.pt.y);
-                        //Update <poly> element
-                        var poly = e.data.poly;
-                        var points = poly.attr('points');
-                        points = points.split(' ');
-                        points[e.data.i/2] = Math.floor(args.pt.x) + ',' + Math.floor(args.pt.y);
-                        points = points.join(' ');
-                        poly.attr('points', points);
-                        //TODO: trigger the <poly> to update the underlying <shape>
-                        //IDEA: It might make more sense for the underlying <poly> to handle this update using a bubbled-up updatePosition trigger and an array of its handles tucked into its data? BIG SHRUG? Actually yeah I think it would. Handle just worries about updating it's position (and if there's a constraint on it?) then bubbles up the event to updateGraphics. Yeah, that's what's happening here. Test it with the circle resizer, if it goes off we'll do it here. AHHAHAHHAHA! SCIENCE!
-                        //COMMENT: That might make sense here but it's a tad wonky. Maybe have a "onVertexChange" for <poly>s and trigger that on vert move?
-                    })
-                    .on('mousedown', function() {
-                        $(this).addClass('grabbed');
-                    });
-                handles.appendChild(handle);
-            }
-            area.attr('points', points);
-        }
-        if (area==null) continue; //break out the loop in case of malformed hotspot
-        //Common properties on the hotspot
-        area.attr('id', 'editor_' + hotspot_id)
-            .data('id', hotspot_id)
-            .addClass('editor-hotspot')
-            .addClass('editor-'+hotspot.area.class);
-        shape.appendChild(area);
-        //Add it to the overlay
-        $('#overlay_svg_hotspot_editor').appendChild(g);
+        var hotspot = new Hotspot(room.map[hotspot_id]);
+        $('#overlay_svg_hotspot_editor').appendChild(hotspot.get$());
     }
 
 
@@ -509,6 +325,10 @@ class Handle extends DisplayElement {
         this.isVertexHandle = true;
         this.vertexIndex = i;
     }
+    makeRadiusHandle() {
+        this.isRadiusHandle = true;
+        //class stuff
+    }
 
     setHandlePos(pt) {
         //logic-handling for changing the position of a handle.
@@ -531,6 +351,8 @@ class Handle extends DisplayElement {
             } else if (this.isVertexHandle) {
                 this.setPos(x, y);
                 this.parent.setVertPos(this.vertexIndex, x, y);
+            } else {
+                this.setPos(x, y);
             }
         }
 
@@ -622,10 +444,12 @@ class Hotspot {
             this.gfx.handles.appendChild(h.rad.get$());
         }
         if (this.shape == 'polygon') {
+            h.v = [];
             for (var i=0; i<this.verts.length; i++) {
                 var v = new Handle();
                 v.setPos(this.verts[i].x, this.verts[i].y);
                 v.makeVertexHandle(i);
+                v.parent = this;
                 this.gfx.handles.appendChild(v.get$());
                 h.v[i] = v;
             }
