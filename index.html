@@ -11,6 +11,7 @@
     <script language="javascript">
         $(function() {
             start();
+            enableLoading();
         });
     </script>
 </head>
@@ -27,6 +28,6 @@
         <div id="editor-roomlist" style="display: none;"><ul id="roomlist-panel"></ul></div>
         <div id="editor-properties" style="display: none;"></div>
     </div>
-    <a id="button-export" style="color: #fff; display: none; position: absolute; bottom: 30px;">[export]</a>
-    <!--<a id="butt-cubed" style="color: #fff; display: block; position: absolute; bottom: 60px;">link</a>-->
+    <a id="button-export" style="color: #fff; display: none; position: absolute; bottom: 30px;">[click to export json]</a>
+    <div id="drop-zone" style="color: #fff; display: none; position: absolute; bottom: 60px;">[drop json to import]</div>
 </body>

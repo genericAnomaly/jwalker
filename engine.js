@@ -9,6 +9,7 @@ function start() {
         $('#editor-roomlist').show();
         $('#editor-properties').show();
         $('#button-export').show();
+        $('#drop-zone').show();
     }
 
     go(adventure.meta.start);
@@ -166,7 +167,6 @@ function editorLoadRoom(id) {
     $('#editor-properties').find('input')
         .data('room-id', id)
         .on('change', function() {
-            debug('img set to ' + $(this).val());
             var id = $(this).data('room-id')
             adventure.rooms[id].img = $(this).val();
             $('#room').find('img').attr('src', 'img/'+ $(this).val());
@@ -489,7 +489,6 @@ class Hotspot extends DisplayElement {
     }
 
     syncToAdventure() {
-        //debug('syncing');
         var area = this.toMapArea();
         adventure.rooms[this.room_id].map[this.hotspot_id].area.shape = area.shape;
         adventure.rooms[this.room_id].map[this.hotspot_id].area.coords = area.coords;
@@ -516,20 +515,17 @@ class HotspotProperties {
         this.table = $('<table/>');
         this.$.append(this.table);
         //too late.
-        debug(room);
-        debug(hotspot);
         this.addProperty('cursor', hotspot.area.class, function() {
             var room_id = $(this).data('room-id');
             var hotspot_id = $(this).data('hotspot-id');
             adventure.rooms[room_id].map[hotspot_id].area.class = $(this).val();
         } )
         this.addProperty('click.go', hotspot.click.go, function() {
-            //debug('!')
             var room_id = $(this).data('room-id');
             var hotspot_id = $(this).data('hotspot-id');
             adventure.rooms[room_id].map[hotspot_id].click.go = $(this).val();
         } )
-        //TODO:hotspot.click.text
+        //TODO:hotspot.click.text, and basically every other property. this needs to be more flexible
     }
 
     addProperty(name, value, callback) {
@@ -562,6 +558,36 @@ function exportAdventure() {
     $('#button-export')
         .attr('href', exportURI)
         .attr('download', adventure.meta.name + '-' + Date.now() + '.json' );
+}
+
+
+
+function enableLoading() {
+    //https://www.html5rocks.com/en/tutorials/file/dndfiles/
+    var dropZone = $('#drop-zone')[0];
+    dropZone.addEventListener('dragover', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+    }, false);
+    dropZone.addEventListener('drop', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        if(!e.dataTransfer.files) return;
+        var file = e.dataTransfer.files[0]
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                var obj = JSON.parse(this.result);
+                console.log(obj);
+                adventure = obj;
+                start();
+            } catch (error) {
+                debug(error);
+            }
+        }
+        reader.readAsText(file);
+    }, false);
 }
 
 
