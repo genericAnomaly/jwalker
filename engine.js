@@ -37,11 +37,12 @@ function startEditor() {
         if (grabbed.length === 0) return;
         //If a handle is currently grabbed, trigger our custom grabbed-drag event, and pre-digest it to local coordinates
         var pt = getLocalCoords(e, $('#overlay_svg'));
-        grabbed.trigger('grabbed-drag', pt);//e);
+        grabbed.trigger('grabbed-drag', pt);
 
     }). on('mouseup', function () {
         var grabbed = $('.grabbed');
         if (grabbed.length === 0) return;
+        grabbed.trigger('grabbed-drag-end');
         grabbed.removeClass('grabbed');
     });
 
@@ -175,7 +176,7 @@ function editorLoadRoom(id) {
     //Load in hotspots
     for (var hotspot_id in room.map){
         //Make the DisplayElement Hotspot
-        var hotspot = new Hotspot(room.map[hotspot_id]);
+        var hotspot = new Hotspot(room.map[hotspot_id], hotspot_id, id);
         $('#overlay_svg_hotspot_editor').appendChild(hotspot.get$());
 
         //Make properties for it
@@ -280,6 +281,9 @@ class Handle extends DisplayElement {
             //"eff it, we'll DO IT LIVE" --noted shouting enthusiast BILLIOUS RILEY
             var controller = $(this).data('controller');
             controller.setHandlePos(args);
+        }).on('grabbed-drag-end', function() {
+            var controller = $(this).data('controller');
+            controller.parent.syncToAdventure();
         });
 
     }
@@ -287,14 +291,15 @@ class Handle extends DisplayElement {
     makeRoot() {
         this.isRootHandle = true;
         this.gfx.root.addClass('handle-root');
-        //TODO; add handle-specific classes here
     }
     makeScaleXHandle(complement) {
         this.isScaleXHandle = true;
+        this.gfx.root.addClass('handle-resize-ew');
         //TODO: If we add complementary handles (such as east/west) or composite (such as northest), we should define which complementary/subordinate handles here
     }
     makeScaleYHandle(complement) {
         this.isScaleYHandle = true;
+        this.gfx.root.addClass('handle-resize-ns');
     }
     makeVertexHandle(i) {
         this.isVertexHandle = true;
@@ -302,7 +307,8 @@ class Handle extends DisplayElement {
     }
     makeRadiusHandle() {
         this.isRadiusHandle = true;
-        //class stuff
+        this.gfx.root.addClass('handle-radius');
+        this.gfx.shape.attr('rx', 4);
     }
 
     setHandlePos(pt) {
@@ -330,14 +336,17 @@ class Handle extends DisplayElement {
                 this.setPos(x, y);
             }
         }
-
+        //this.parent.syncToAdventure();
     }
 
 }
 class Hotspot extends DisplayElement {
-    constructor(args) {
+    constructor(args, hotspot_id, room_id) {
         super(args)
-        this.initialArgs = args;
+
+        //remember how to callback to the adventure object
+        this.hotspot_id = hotspot_id;
+        this.room_id = room_id;
 
         //Declare DisplayObject style vars
         this.shape = args.area.shape;
@@ -479,6 +488,12 @@ class Hotspot extends DisplayElement {
         return {'shape' : shape, 'coords' : coords};
     }
 
+    syncToAdventure() {
+        //debug('syncing');
+        var area = this.toMapArea();
+        adventure.rooms[this.room_id].map[this.hotspot_id].area.shape = area.shape;
+        adventure.rooms[this.room_id].map[this.hotspot_id].area.coords = area.coords;
+    }
 }
 
 class HotspotProperties {
@@ -536,7 +551,7 @@ class HotspotProperties {
 var exportURI = null;
 function exportAdventure() {
     debug('attempting export');
-    var json = JSON.stringify(adventure);
+    var json = JSON.stringify(adventure, null, 4);
     var data = new Blob([json], {type : 'application/json'});
     debug(data);
     if (exportURI !== null) {

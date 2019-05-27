@@ -139,17 +139,6 @@ body {
 	mix-blend-mode: screen;
 	animation: marching-ants 1s linear forwards infinite;
 }
-/*
-.editor-hotspot :matches(rect, circle, polygon) {
-	fill: rgba(0, 255, 255, 0.5);
-	stroke: #fff;
-	stroke-width: 2px;
-	stroke-dasharray: 6 4;
-	stroke-dashoffset: 0;
-	mix-blend-mode: screen;
-	animation: marching-ants 1s linear forwards infinite;
-}
-*/
 
 @keyframes marching-ants {
 	to {
@@ -171,12 +160,13 @@ body {
 	cursor: grab;
 }
 
-.editor-handle.handle-constrain-x {
+.editor-handle.handle-resize-ns {
 	cursor: ns-resize;
 }
-.editor-handle.handle-constrain-y {
+.editor-handle.handle-resize-ew {
 	cursor: ew-resize;
 }
+
 
 
 
