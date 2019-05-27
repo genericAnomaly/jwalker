@@ -40,11 +40,20 @@ function startEditor() {
         var pt = getLocalCoords(e, $('#overlay_svg'));
         grabbed.trigger('grabbed-drag', pt);
 
-    }). on('mouseup', function () {
+    }).on('mouseup', function () {
         var grabbed = $('.grabbed');
         if (grabbed.length === 0) return;
         grabbed.trigger('grabbed-drag-end');
         grabbed.removeClass('grabbed');
+    }).on('keydown', function (e) {
+        debug(e);
+        if (e.key == 'Shift') {
+            $('#overlay_svg_hotspot_editor').addClass('passthru');
+        }
+    }).on('keyup', function (e) {
+        if (e.key == 'Shift') {
+            $('#overlay_svg_hotspot_editor').removeClass('passthru');
+        }
     });
 
     $('#button-export').on('click', function() {
@@ -525,7 +534,15 @@ class HotspotProperties {
             var hotspot_id = $(this).data('hotspot-id');
             adventure.rooms[room_id].map[hotspot_id].click.go = $(this).val();
         } )
-        //TODO:hotspot.click.text, and basically every other property. this needs to be more flexible
+
+        if (hotspot.click.text){
+            this.addProperty('click.text', hotspot.click.text.string, function() {
+                var room_id = $(this).data('room-id');
+                var hotspot_id = $(this).data('hotspot-id');
+                adventure.rooms[room_id].map[hotspot_id].click.text.string = $(this).val();
+            } )
+        }
+        //TODO: the ability to dynamically add properties.
     }
 
     addProperty(name, value, callback) {

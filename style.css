@@ -139,6 +139,9 @@ body {
 	mix-blend-mode: screen;
 	animation: marching-ants 1s linear forwards infinite;
 }
+g:hover>.editor-hotspot-area {
+	fill: rgba(255, 0, 255, 0.5);
+}
 
 @keyframes marching-ants {
 	to {
@@ -192,6 +195,10 @@ body {
 #overlay_svg_hotspot_editor {
 	pointer-events: visibleFill;
 }
+#overlay_svg_hotspot_editor.passthru {
+	pointer-events: none;
+}
+
 
 
 
