@@ -244,7 +244,7 @@ class DisplayElement {
         return this.gfx.root;
     }
 
-
+    /*
     getLocalCoords(screenX, screenY) {
         //for mouse event `e`, return the localised coordinates of the mouse event within the SVG element
         //powered by some js magic I still don't understand discovered at https://stackoverflow.com/questions/12752519/svg-capturing-mouse-coordinates until this functionality becomes native
@@ -261,21 +261,9 @@ class DisplayElement {
         return pt.matrixTransform(transform);
         //NB: This appears to generate a significant bug in Mozilla Firefox when the main div is absolutely positioned and transformed. Commenting out that styling for now.
     }
-
-
-
-    //Let's, just, maybe put "recreate actionscript" on the back burner, k?
-    /*
-    addChild(c) {
-        c.parent = this;
-        this.children.push(c);
-        this.gfx.root.appendChild(c.gfx.root)
-    }
     */
 
 }
-
-
 
 class Handle extends DisplayElement {
     constructor(args) {
@@ -298,25 +286,21 @@ class Handle extends DisplayElement {
         this.gfx.root.on('mousedown', function() {
             $(this).addClass('grabbed');
         }).on('grabbed-drag', function (e, args) {
-            //debug('handle got dragged');
-            //debug(args);
             //"eff it, we'll DO IT LIVE" --noted shouting enthusiast BILLIOUS RILEY
             var controller = $(this).data('controller');
             controller.setHandlePos(args);
         });
 
     }
-    constrain(axis) {
-        this.constrainAxis = axis;
-        this.gfx.shape.addClass('handle-constrain-' + axis);
-    }
+
     makeRoot() {
         this.isRootHandle = true;
-        //TODO; add classes here
+        this.gfx.root.addClass('handle-root');
+        //TODO; add handle-specific classes here
     }
     makeScaleXHandle(complement) {
         this.isScaleXHandle = true;
-        //define other handles to mirror motion to?
+        //TODO: If we add complementary handles (such as east/west) or composite (such as northest), we should define which complementary/subordinate handles here
     }
     makeScaleYHandle(complement) {
         this.isScaleYHandle = true;
@@ -412,60 +396,47 @@ class Hotspot {
             this.rebuildPolygon();
         }
 
+        this.buildHandles();
 
+    }
 
-
-
-        //TODO: build the handles
-        var h = {};
-        //NB: do we need to remember all of these? friendlier var names? idk.
-
+    buildHandles () {
+        var handles = [];
+        var h;
         if (this.shape !== 'polygon') {
-            h.r = new Handle();
-            h.r.makeRoot();
-            h.r.gfx.root.addClass('handle-root');
-            this.gfx.handles.appendChild(h.r.get$());
+            h = new Handle();
+            h.makeRoot();
+            handles.push(h);
         }
         if (this.shape == 'rect') {
-            h.e = new Handle();
-            h.e.setPos(width/2, 0);
-            h.e.makeScaleXHandle();
-            this.gfx.handles.appendChild(h.e.get$());
-
-            h.n = new Handle();
-            h.n.setPos(0, height/2)
-            h.n.makeScaleYHandle();
-            this.gfx.handles.appendChild(h.n.get$());
+            h = new Handle();
+            h.setPos(this.width/2, 0);
+            h.makeScaleXHandle();
+            handles.push(h);
+            h = new Handle();
+            h.setPos(0, this.height/2)
+            h.makeScaleYHandle();
+            handles.push(h);
         }
         if (this.shape == 'circle') {
-            h.rad = new Handle();
-            h.rad.setPos(0, this.radius)
-            h.rad.makeRadiusHandle();
-            this.gfx.handles.appendChild(h.rad.get$());
+            h = new Handle();
+            h.setPos(0, this.radius)
+            h.makeRadiusHandle();
+            handles.push(h);
         }
         if (this.shape == 'polygon') {
-            h.v = [];
             for (var i=0; i<this.verts.length; i++) {
-                var v = new Handle();
-                v.setPos(this.verts[i].x, this.verts[i].y);
-                v.makeVertexHandle(i);
-                v.parent = this;
-                this.gfx.handles.appendChild(v.get$());
-                h.v[i] = v;
+                h = new Handle();
+                h.setPos(this.verts[i].x, this.verts[i].y);
+                h.makeVertexHandle(i);
+                handles.push(h);
             }
         }
-
-        //h.w = new Handle();
-        //h.w.setPos(-width/2, 0);
-        //h.w.constrain('y');
-        //this.gfx.handles.appendChild(h.w.get$());
-
-        for(var key in h) {
-            h[key].parent = this;
+        for(var i=0; i<handles.length; i++) {
+            var handle = handles[i];
+            handle.parent = this;
+            this.gfx.handles.appendChild(handle.get$());
         }
-
-
-
     }
 
     get$() {
