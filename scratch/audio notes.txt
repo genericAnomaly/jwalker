@@ -1,0 +1,153 @@
+sound work ideas
+
+* separate from rooms, define "tracks"
+* each track is an AudioContext object
+* tracks can have looping rules that define how/if it loops
+* the first time a track is referenced, it starts from 0
+
+'audio'	:	{
+	'tracks'	:	{
+		'outside'	:	{
+			'src'		:	'wind_loop.ogg',
+			'loop'		:	true,
+			'playback'	:	'auto' | 'event'.
+		},
+		'basement'	:	{
+			'src'	:	'basement.ogg',
+			'loop'	:	false
+		}
+	}
+	'sfx'	:	{
+		'drip'	:	{
+			'src'	:	'drip.ogg'
+		},
+		'thud'	:	{
+			'src'	:	'thud.ogg'
+		}
+	}
+}
+
+
+* rooms define what tracks play in them and what volume
+* upon entering a room, the engine checks what track(s) are part of the room's soundscape and sends them the appropriate command
+
+maybe something like
+soundscape : {
+	<trackID>	:	0.5,
+	<trackID>	:	1.0,
+	<trackID>	:	0.0
+}
+
+* tracks that aren't explicitly mentioned are implicitly disabled?
+* a looping track will continue to play if its volume is set to 0, so you can have a silent room adjacent to a room with a loop, and the loop won't start over every time you go between the two
+
+
+what about:
+
+soundscape : {
+	<trackID>	:	{'volume' : 0.5, 'action' : 'start'},
+	<trackID>	:	1.0,
+	<trackID>	:	0.0
+}
+
+
+
+
+* There should be a dedicated "Soundscape" object, and upon entering a room w/ a soundscape property, it's just forwarded to the instance, which handles all the logic.
+
+
+garbage collection:
+* if a looping track with a volume of 0 reaches the end of its audio, it will not loop
+* 0 volume tracks should be cleared from memory after the player triggers an arbitrary number of actions without any referencing the track
+
+
+
+
+
+
+======
+
+what if tracks aren't married to rooms,
+and a click event can start, pause, seek, or stop a track
+so the responsibility is all on the adventure designer to turn them off at bottlenecks? no, bad
+
+door
+click : {
+	go	: room_id
+	audio	: {
+		track	: track_id
+		action	: play
+
+
+the adventure author is effectively responsible for defining the "edges" where audio is told to start or stop?
+
+
+or
+
+
+the Soundscape Manager handles it
+so you define a track
+
+tracks {
+	basement:	{
+		src	: 'basement.ogg',
+		volume:	{
+			'basement'		: 1.0
+			'basement_stairs'	: 0.5
+			}
+		taper: 3 /*# of room transitions to taper this audio over if not explicitly set to 0*/
+	}
+}
+
+
+
+In the editor, you can still have the audio track visible in the room's properties, and change it / add additional ones, but that data resides in the Track's info.
+
+
+should also be able to sync audio, so the change between an external and internal processed version of the same wind track, for example, doesn't hiccup/loop
+
+
+
+maybe add a visualiser/map where it shows all rooms and their edges on a graph? long-term wishlist there.
+
+
+
+
+
+
+class Soundscape {
+
+	var tracks = {
+		'basement' : <SoundscapeTrack object>
+		
+	};
+
+	var rooms = {} //compiled-at-launch reverse-lookup room-to-tracks map
+	//something like:
+	rooms = {
+		'basement' : ['basement', 'washingmachine'],
+		'outside' : ['windexternal']
+	}
+
+}
+
+
+class SoundscapeTrack {
+
+	function control(args) {
+		//reads in an args object, probably specified by the author.
+		//might be like {'seek' : 0} to restart a track
+		//{'volume' : 0.2, 'duration' : 5} to reduce volume to 20% over 5 seconds
+	}
+
+}
+
+
+
+If we go with a soft thing (this room starts a track, and that track lasts at least 4 room-transitions), click actions should still be able to send commands to the Soundscape manager, like, a room that explicitly silences all tracks, but they come back on leaving?
+
+
+other idea: rooms define a track and a distance it can be heard from? would require compiling 
+
+
+
