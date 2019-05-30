@@ -30,13 +30,9 @@ specify an array of actions. define if they loop or are one-time-only.
 
 'click'	: {
 	'sequence'	: [
-		{
-            'sfx'       : 'horse',
-        },
-		{
-            'text'      : 'The fun never stops.'
-        }
+		{'sfx'    : 'horse'},
+		{'text'   : 'The fun never stops.'}
 	],
-    'sequence_repeat'   :   'forever',
-    'sequence_index'    :   
+    'sequence_repeat'   :   'forever' | <integer>,
+    'sequence_index'    :   /*adventure state*/
 }
