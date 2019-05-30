@@ -115,11 +115,11 @@ maybe add a visualiser/map where it shows all rooms and their edges on a graph? 
 
 
 
-class Soundscape {
+class SoundscapeManager {
 
 	var tracks = {
 		'basement' : <SoundscapeTrack object>
-		
+
 	};
 
 	var rooms = {} //compiled-at-launch reverse-lookup room-to-tracks map
@@ -147,7 +147,4 @@ class SoundscapeTrack {
 If we go with a soft thing (this room starts a track, and that track lasts at least 4 room-transitions), click actions should still be able to send commands to the Soundscape manager, like, a room that explicitly silences all tracks, but they come back on leaving?
 
 
-other idea: rooms define a track and a distance it can be heard from? would require compiling 
-
-
-
+other idea: rooms define a track and a distance it can be heard from? would require compiling
