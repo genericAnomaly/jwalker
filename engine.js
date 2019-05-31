@@ -3,14 +3,11 @@ var editorMode = false;
 
 //Big Red Button
 function start() {
-    if(window.location.hash == '#editor') {
-        editorMode = true;
-        startEditor();
-        $('#editor-roomlist').show();
-        $('#editor-properties').show();
-        $('#button-export').show();
-        $('#drop-zone').show();
-    }
+    //If the editor is requested, activate the editor
+    if(window.location.hash == '#editor') startEditor();
+
+    //Activate audio
+    AudioJinn.invoke();
 
     go(adventure.meta.start);
     window.requestAnimationFrame(onAnimationFrameHandler);
@@ -19,6 +16,14 @@ function start() {
 
 
 function startEditor() {
+    editorMode = true;
+
+    //Show editor panels (TODO: replace this with a function to build them from scratch maybe)
+    $('#editor-roomlist').show();
+    $('#editor-properties').show();
+    $('#button-export').show();
+    $('#drop-zone').show();
+
     $('#roomlist-panel').empty();
     for (var id in adventure.rooms) {
         var img = $('<img>')
@@ -97,6 +102,9 @@ function clickHandler(e) {
     }
     if ('text' in click) {
         text(click.text);
+    }
+    if ('sfx' in click) {
+        AudioJinn.playSFX(click.sfx);
     }
 }
 function onAnimationFrameHandler(ts) {
@@ -608,6 +616,42 @@ function enableLoading() {
         reader.readAsText(file);
     }, false);
 }
+
+
+
+
+class AudioJinn {
+
+    static invoke () {
+        AudioJinn.sfx = {};
+
+        AudioJinn.loadSFX(adventure.sfx);
+    }
+
+    static loadSFX (sfx) {
+        for (var key in sfx) {
+            AudioJinn.sfx[key] = sfx[key];
+            var a = new Audio();
+            a.src = 'sfx/' + sfx[key].src;
+            AudioJinn.sfx[key].audio = a;
+        }
+    }
+
+    static playSFX (key) {
+        if (key in AudioJinn.sfx) {
+            AudioJinn.sfx[key].audio.play();
+        }
+    }
+
+
+}
+
+
+
+
+
+
+
 
 
 const DEBUG = true;

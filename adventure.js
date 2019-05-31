@@ -19,7 +19,7 @@ var adventure = {
                 },
                 'lamp'      :   {
                     'area'      :   {'shape' : 'circle', 'coords' : '700,120,75', 'class' : 'arrow-n'},
-                    'click'     :   {'go' : 'outside'}
+                    'click'     :   {'sfx' : 'horse'}
                 }
             }
         },
@@ -76,6 +76,9 @@ var adventure = {
                 }
             }
         }
+    },
+    'sfx'   : {
+        'horse' :   {'src'   :   'horse.ogg'}
     },
     'variables'     : {
         /*Reserved for further development, if the adventure needs to be able to store and check information about its state*/
