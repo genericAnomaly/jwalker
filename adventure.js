@@ -3,7 +3,9 @@ var adventure = {
         /* Stuff defining the adventure will probably go here */
         'name'      :   'Dennis Quest',
         'author'    :   'Dennis',
-        'start'     :   'foyer',
+        'start'     :   'outside',
+        'screen'    :   {'width' : 800, 'height' : 600},
+        'path'      :   'assets/' /*Not in use yet*/
     },
     'rooms'   :   {
         'foyer' :   {
@@ -21,6 +23,9 @@ var adventure = {
                     'area'      :   {'shape' : 'circle', 'coords' : '700,120,75', 'class' : 'arrow-n'},
                     'click'     :   {'sfx' : 'horse'}
                 }
+            },
+            'tracks'    : {
+                'radio' :   0.05
             }
         },
         'upstairs'  :   {
@@ -50,6 +55,9 @@ var adventure = {
                 	'area'      :   {'shape' : 'rect', 'coords' : '0,550,488,600', 'class' : 'arrow-s'},
                 	'click'     :   {'go' : 'outside'}
                 }
+            },
+            'tracks'    : {
+                'radio' :   0.2
             }
         },
         'attic'  :   {
@@ -65,6 +73,9 @@ var adventure = {
                         'text' : {'string'    : 'Smells like wet cat...'}
                     }
                 }
+            },
+            'tracks'    : {
+                'radio' :   0.6
             }
         },
         'outside'  :   {
@@ -78,7 +89,10 @@ var adventure = {
         }
     },
     'sfx'   : {
-        'horse' :   {'src'   :   'horse.ogg'}
+        'horse' :   {'src'  :   'horse.ogg'}
+    },
+    'tracks' : {
+        'radio'  :   {'src'  :   'broadcast.mp3'}
     },
     'variables'     : {
         /*Reserved for further development, if the adventure needs to be able to store and check information about its state*/

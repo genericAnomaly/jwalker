@@ -74,6 +74,9 @@ function startEditor() {
 
 //Click event functions
 function go(id) {
+
+    AudioJinn.playTracks(adventure.rooms[id].tracks);
+
     div = buildRoom(id);
     $('#room').empty().append(div);
 
@@ -624,8 +627,10 @@ class AudioJinn {
 
     static invoke () {
         AudioJinn.sfx = {};
+        AudioJinn.tracks = {};
 
         AudioJinn.loadSFX(adventure.sfx);
+        AudioJinn.loadTracks(adventure.tracks);
     }
 
     static loadSFX (sfx) {
@@ -634,12 +639,47 @@ class AudioJinn {
             var a = new Audio();
             a.src = 'sfx/' + sfx[key].src;
             AudioJinn.sfx[key].audio = a;
+            //TODO: load-safety, make the AudioJinn aware of whether or not resources are loaded
         }
     }
+
+    static loadTracks (tracks) {
+        for (var key in tracks) {
+            AudioJinn.tracks[key] = tracks[key];
+            var a = new Audio();
+            a.src = 'tracks/' + tracks[key].src;
+            a.loop = true;
+            AudioJinn.tracks[key].audio = a;
+        }
+    }
+
 
     static playSFX (key) {
         if (key in AudioJinn.sfx) {
             AudioJinn.sfx[key].audio.play();
+        }
+    }
+
+
+
+    static playTracks (tracks) {
+        if (tracks == undefined) tracks = {};
+        for (var key in AudioJinn.tracks) {
+            if (key in tracks) {
+                AudioJinn.tracks[key].audio.play();
+                AudioJinn.tracks[key].audio.volume = tracks[key];
+                AudioJinn.tracks[key].audio.loop = true;
+            } else {
+                AudioJinn.tracks[key].audio.volume = 0; //Don't pause it, but we should have a catcher for when a loop ends to pause it if volume is 0
+                AudioJinn.tracks[key].audio.loop = false; //Or maybe just this; just disable looping when a track becomes inaudible
+            }
+        }
+    }
+
+    static playTrack (key, volume) {
+        if (key in AudioJinn.tracks) {
+            if (AudioJinn.tracks[key].paused) AudioJinn.tracks[key].play();
+            AudioJinn.tracks[key].volume = volume; //TODO: targetVolume and easing
         }
     }
 
