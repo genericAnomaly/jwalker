@@ -29,11 +29,11 @@
                     "properties"    :   {
                         "width" :   {
                             "description"   :   "Width in pixels",
-                            "type"          :   "integer",
+                            "type"          :   "integer"
                         },
                         "height" :   {
                             "description"   :   "Height in pixels",
-                            "type"          :   "integer",
+                            "type"          :   "integer"
                         }
                     }
                 },
@@ -82,7 +82,7 @@
                                                     "description"   :   "The css class of this hotspot",
                                                     "type"          :   "string"
                                                 }
-                                            },
+                                            }
                                         },
                                         "click" :   {
                                             "description"   :   "Defines action(s) to take when this hotspot is clicked",
@@ -171,6 +171,4 @@
             "type"          :   "object"
         }
     }
-
-
 }

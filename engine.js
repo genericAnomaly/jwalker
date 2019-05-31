@@ -667,7 +667,7 @@ class AudioJinn {
         for (var key in AudioJinn.tracks) {
             if (key in tracks) {
                 AudioJinn.tracks[key].audio.play();
-                AudioJinn.tracks[key].audio.volume = tracks[key];
+                AudioJinn.tracks[key].audio.volume = tracks[key]; //TODO: targetVolume and easing
                 AudioJinn.tracks[key].audio.loop = true;
             } else {
                 AudioJinn.tracks[key].audio.volume = 0; //Don't pause it, but we should have a catcher for when a loop ends to pause it if volume is 0
@@ -676,12 +676,6 @@ class AudioJinn {
         }
     }
 
-    static playTrack (key, volume) {
-        if (key in AudioJinn.tracks) {
-            if (AudioJinn.tracks[key].paused) AudioJinn.tracks[key].play();
-            AudioJinn.tracks[key].volume = volume; //TODO: targetVolume and easing
-        }
-    }
 
 
 }
