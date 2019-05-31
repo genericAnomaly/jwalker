@@ -1,0 +1,176 @@
+{
+    "$schema"       :   "http://json-schema.org/draft-07/schema#",
+    "$id"           :   "this.schema.json",
+    "title"         :   "JWalker Adventure",
+    "description"   :   "Defines a JWalker adventure",
+    "type"          :   "object",
+    "properties"    :   {
+        "meta"  :   {
+            "description"   :   "Metadata describing the Adventure",
+            "type"          :   "object",
+            "required"  :   ["start"],
+            "properties"    :   {
+                "name"  :   {
+                    "description"   :   "Name of the Adventure",
+                    "type"          :   "string"
+                },
+                "author"    :    {
+                    "description"   :   "Author of the Adventure",
+                    "type"          :   "string"
+                },
+                "start" :   {
+                    "description"   :   "Defines the room_id on which this adventure should start",
+                    "type"          :   "string"
+                },
+                "screen"    :   {
+                    "description"   :   "Defines the dimensions of the screen to use for this adventure",
+                    "type"          :   "object",
+                    "required"      :   ["width", "height"],
+                    "properties"    :   {
+                        "width" :   {
+                            "description"   :   "Width in pixels",
+                            "type"          :   "integer",
+                        },
+                        "height" :   {
+                            "description"   :   "Height in pixels",
+                            "type"          :   "integer",
+                        }
+                    }
+                },
+                "path"  :   {
+                    "description"   :   "Defines the path to assets for this adventure",
+                    "type"          :   "string"
+                }
+            }
+        },
+        "rooms" :   {
+            "description"       :   "Associative array of rooms in the adventure. Properties are all keys",
+            "type"              :   "object",
+            "patternProperties" :   {
+                "\\w+"  :   {
+                    "description"   :   "A room in the adventure",
+                    "type"          :   "object",
+                    "required"      :   ["img", "map"],
+                    "properties"    :   {
+                        "img"   :   {
+                            "description"   :   "Filename of the image to display for this room",
+                            "type"          :   "string"
+                        },
+                        "map"   :   {
+                            "description"       :   "Associative array of Hotspots for this room. Properties are all keys",
+                            "type"              :   "object",
+                            "patternProperties" :   {
+                                "\\w+"  :   {
+                                    "description"   :   "A hotspot",
+                                    "type"          :   "object",
+                                    "required"      :   ["area"],
+                                    "properties"    :   {
+                                        "area"  :   {
+                                            "description"   :   "Defines the area of this hotspot",
+                                            "type"          :   "object",
+                                            "required"  :   ["shape", "coords"],
+                                            "properties"    :   {
+                                                "shape" :   {
+                                                    "description"   :   "The shape of this hotspot, either rect|circle|poly, corresponding to the shape attribute of an HTML area element",
+                                                    "type"          :   "string"
+                                                },
+                                                "coords" :   {
+                                                    "description"   :   "The coordinates of this hotspot, as a series of comma-separate integers, corresponding to the coords attribute of an HTML area element",
+                                                    "type"          :   "string"
+                                                },
+                                                "class" :   {
+                                                    "description"   :   "The css class of this hotspot",
+                                                    "type"          :   "string"
+                                                }
+                                            },
+                                        },
+                                        "click" :   {
+                                            "description"   :   "Defines action(s) to take when this hotspot is clicked",
+                                            "type"          :   "object",
+                                            "required"      :   [],
+                                            "properties"    :   {
+                                                "go"    :   {
+                                                    "description"   :   "This click will trigger a room transition to the room with an ID/key matching the provided string",
+                                                    "type"          :   "string"
+                                                },
+                                                "sfx"   :   {
+                                                    "description"   :   "This click will trigger the sound manager to play an SFX track with an ID/key matching the provided string",
+                                                    "type"          :   "string"
+                                                },
+                                                "text"  :   {
+                                                    "description"   :   "This click will display text as defined herein",
+                                                    "type"          :   "object",
+                                                    "required"      :   ["string"],
+                                                    "properties"    :   {
+                                                        "string"    :   {
+                                                            "description"   :   "String to be displayed",
+                                                            "type"          :   "string"
+                                                        },
+                                                        "class"     :   {
+                                                            "description"   :   "CSS class to apply to the text element. Not yet implemented",
+                                                            "type"          :   "string"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "tracks"    :   {
+                            "description"   :   "Associative array of audio tracks defining the soundscape of this room",
+                            "type"          :   "object",
+                            "patternProperties" :   {
+                                "\\w+"  :   {
+                                    "description"   :   "Defines the volume (0.0-1.0) to play the track of the same key/ID",
+                                    "type"          :   "number"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "sfx"   :   {
+            "description"       :   "Associative array of fire-and-forget sound effects in the adventure. Properties are all keys",
+            "type"              :   "object",
+            "patternProperties" :   {
+                "\\w+"  :   {
+                    "description"   :   "A sound-effects track",
+                    "type"          :   "object",
+                    "required"      :   ["src"],
+                    "properties"    :   {
+                        "src"   :   {
+                            "description"   :   "Filename of the audio resource this sfx track uses.",
+                            "type"          :   "string"
+                        }
+                    }
+                }
+            }
+        },
+        "tracks"   :   {
+            "description"       :   "Associative array of looping audio tracks in the adventure. Properties are all keys",
+            "type"              :   "object",
+            "patternProperties" :   {
+                "\\w+"  :   {
+                    "description"   :   "A looping track",
+                    "type"          :   "object",
+                    "required"      :   ["src"],
+                    "properties"    :   {
+                        "src"   :   {
+                            "description"   :   "Filename of the audio resource this looping track uses.",
+                            "type"          :   "string"
+                        }
+                    }
+                }
+            }
+        },
+        "variables" :   {
+            "description"   :   "Reserved for further development, if the adventure needs to be able to store and check information about its state",
+            "type"          :   "object"
+        }
+    }
+
+
+}
