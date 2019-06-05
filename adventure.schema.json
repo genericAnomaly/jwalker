@@ -94,8 +94,21 @@
                                                     "type"          :   "string"
                                                 },
                                                 "sfx"   :   {
-                                                    "description"   :   "This click will trigger the sound manager to play an SFX track with an ID/key matching the provided string",
-                                                    "type"          :   "string"
+                                                    "description"   :   "This click will trigger the sound manager to play an SFX track",
+                                                    "type"          :   "object",
+                                                    "required"      :   ["key"],
+                                                    "properties"    :   {
+                                                        "key"       :   {
+                                                            "description"   :   "The key of the SFX track to play",
+                                                            "type"          :   "string"
+                                                        },
+                                                        "volume"    :   {
+                                                            "description"   :   "The volume to play the track at as a float between 0.0 and 1.0",
+                                                            "type"          :   "number",
+                                                            "minimum"       :   0.0,
+                                                            "maximum"       :   1.0
+                                                        }
+                                                    }
                                                 },
                                                 "text"  :   {
                                                     "description"   :   "This click will display text as defined herein",
@@ -124,7 +137,9 @@
                             "patternProperties" :   {
                                 "\\w+"  :   {
                                     "description"   :   "Defines the volume (0.0-1.0) to play the track of the same key/ID",
-                                    "type"          :   "number"
+                                    "type"          :   "number",
+                                    "minimum"       :   0.0,
+                                    "maximum"       :   1.0
                                 }
                             }
                         }

@@ -21,7 +21,7 @@ var adventure = {
                 },
                 'lamp'      :   {
                     'area'      :   {'shape' : 'circle', 'coords' : '700,120,75', 'class' : 'arrow-n'},
-                    'click'     :   {'sfx' : 'horse'}
+                    'click'     :   {'sfx' :  {'key' : 'horse', 'volume' : 0.05} }
                 }
             },
             'tracks'    : {

@@ -654,8 +654,17 @@ class AudioJinn {
     }
 
 
-    static playSFX (key) {
+    static playSFX (sfx) {
+        if (('key' in sfx) == false) return;
+        var key = sfx.key;
+
+        var volume = 1.0;
+        if ('volume' in sfx) {
+             volume = sfx.volume;
+        }
+
         if (key in AudioJinn.sfx) {
+            AudioJinn.sfx[key].audio.volume = volume;
             AudioJinn.sfx[key].audio.play();
         }
     }
