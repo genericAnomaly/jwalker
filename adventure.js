@@ -19,8 +19,8 @@ var adventure = {
                     'area'      :   {'shape' : 'rect', 'coords' : '577,187,695,434', 'class' : 'arrow-n'},
                     'click'     :   {'go' : 'outside'}
                 },
-                'lamp'      :   {
-                    'area'      :   {'shape' : 'circle', 'coords' : '700,120,75', 'class' : 'arrow-n'},
+                'horse'      :   {
+                    'area'      :   {'shape' : 'circle', 'coords' : '273,287,47', 'class' : 'action-examine'},
                     'click'     :   {'sfx' :  {'key' : 'horse', 'volume' : 0.05} }
                 }
             },
@@ -92,7 +92,7 @@ var adventure = {
         'horse' :   {'src'  :   'horse.ogg'}
     },
     'tracks' : {
-        'radio'  :   {'src'  :   'broadcast.mp3'}
+        'radio'  :   {'src'  :   'radio.ogg'}
     },
     'variables'     : {
         /*Reserved for further development, if the adventure needs to be able to store and check information about its state*/

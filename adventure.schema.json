@@ -4,6 +4,7 @@
     "title"         :   "JWalker Adventure",
     "description"   :   "Defines a JWalker adventure",
     "type"          :   "object",
+    "required"      :   ["meta", "rooms"],
     "properties"    :   {
         "meta"  :   {
             "description"   :   "Metadata describing the Adventure",
@@ -72,7 +73,8 @@
                                             "properties"    :   {
                                                 "shape" :   {
                                                     "description"   :   "The shape of this hotspot, either rect|circle|poly, corresponding to the shape attribute of an HTML area element",
-                                                    "type"          :   "string"
+                                                    "type"          :   "string",
+                                                    "enum"          :   ["rect", "circle", "poly"]
                                                 },
                                                 "coords" :   {
                                                     "description"   :   "The coordinates of this hotspot, as a series of comma-separate integers, corresponding to the coords attribute of an HTML area element",
