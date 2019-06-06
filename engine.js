@@ -3,14 +3,11 @@ var editorMode = false;
 
 //Big Red Button
 function start() {
-    if(window.location.hash == '#editor') {
-        editorMode = true;
-        startEditor();
-        $('#editor-roomlist').show();
-        $('#editor-properties').show();
-        $('#button-export').show();
-        $('#drop-zone').show();
-    }
+    //If the editor is requested, activate the editor
+    if(window.location.hash == '#editor') startEditor();
+
+    //Activate audio
+    AudioJinn.invoke();
 
     go(adventure.meta.start);
     window.requestAnimationFrame(onAnimationFrameHandler);
@@ -19,6 +16,14 @@ function start() {
 
 
 function startEditor() {
+    editorMode = true;
+
+    //Show editor panels (TODO: replace this with a function to build them from scratch maybe)
+    $('#editor-roomlist').show();
+    $('#editor-properties').show();
+    $('#button-export').show();
+    $('#drop-zone').show();
+
     $('#roomlist-panel').empty();
     for (var id in adventure.rooms) {
         var img = $('<img>')
@@ -69,6 +74,9 @@ function startEditor() {
 
 //Click event functions
 function go(id) {
+
+    AudioJinn.playTracks(adventure.rooms[id].tracks);
+
     div = buildRoom(id);
     $('#room').empty().append(div);
 
@@ -97,6 +105,9 @@ function clickHandler(e) {
     }
     if ('text' in click) {
         text(click.text);
+    }
+    if ('sfx' in click) {
+        AudioJinn.playSFX(click.sfx);
     }
 }
 function onAnimationFrameHandler(ts) {
@@ -608,6 +619,82 @@ function enableLoading() {
         reader.readAsText(file);
     }, false);
 }
+
+
+
+
+class AudioJinn {
+
+    static invoke () {
+        AudioJinn.sfx = {};
+        AudioJinn.tracks = {};
+
+        AudioJinn.loadSFX(adventure.sfx);
+        AudioJinn.loadTracks(adventure.tracks);
+    }
+
+    static loadSFX (sfx) {
+        for (var key in sfx) {
+            AudioJinn.sfx[key] = sfx[key];
+            var a = new Audio();
+            a.src = 'sfx/' + sfx[key].src;
+            AudioJinn.sfx[key].audio = a;
+            //TODO: load-safety, make the AudioJinn aware of whether or not resources are loaded
+        }
+    }
+
+    static loadTracks (tracks) {
+        for (var key in tracks) {
+            AudioJinn.tracks[key] = tracks[key];
+            var a = new Audio();
+            a.src = 'tracks/' + tracks[key].src;
+            a.loop = true;
+            AudioJinn.tracks[key].audio = a;
+        }
+    }
+
+
+    static playSFX (sfx) {
+        if (('key' in sfx) == false) return;
+        var key = sfx.key;
+
+        var volume = 1.0;
+        if ('volume' in sfx) {
+             volume = sfx.volume;
+        }
+
+        if (key in AudioJinn.sfx) {
+            AudioJinn.sfx[key].audio.volume = volume;
+            AudioJinn.sfx[key].audio.play();
+        }
+    }
+
+
+
+    static playTracks (tracks) {
+        if (tracks == undefined) tracks = {};
+        for (var key in AudioJinn.tracks) {
+            if (key in tracks) {
+                AudioJinn.tracks[key].audio.play();
+                AudioJinn.tracks[key].audio.volume = tracks[key]; //TODO: targetVolume and easing
+                AudioJinn.tracks[key].audio.loop = true;
+            } else {
+                AudioJinn.tracks[key].audio.volume = 0; //Don't pause it, but we should have a catcher for when a loop ends to pause it if volume is 0
+                AudioJinn.tracks[key].audio.loop = false; //Or maybe just this; just disable looping when a track becomes inaudible
+            }
+        }
+    }
+
+
+
+}
+
+
+
+
+
+
+
 
 
 const DEBUG = true;
