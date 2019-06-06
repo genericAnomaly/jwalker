@@ -92,7 +92,7 @@ var adventure = {
         'horse' :   {'src'  :   'horse.ogg'}
     },
     'tracks' : {
-        'radio'  :   {'src'  :   'radiostatic.ogg'} /*TODO: replace me with like, old timey music, that makes sense to be audible two floors away*/
+        'radio' :   {'src'  :   'radio.ogg'}
     },
     'variables'     : {
         /*Reserved for further development, if the adventure needs to be able to store and check information about its state*/
