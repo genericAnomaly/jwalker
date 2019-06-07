@@ -159,6 +159,8 @@ class InteractionJinn {
 }
 
 class TextJinn {
+    //Lesser Jinn resposible for handling the click.text property
+    //Will likely evolve into a more full-featured "overlay" Jinn as more overlay-related functionality is needed
 
     static invoke() {
         InteractionJinn.register('text',  TextJinn.text);
