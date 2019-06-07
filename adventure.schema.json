@@ -9,7 +9,7 @@
         "meta"  :   {
             "description"   :   "Metadata describing the Adventure",
             "type"          :   "object",
-            "required"  :   ["start"],
+            "required"      :   ["start"],
             "properties"    :   {
                 "name"  :   {
                     "description"   :   "Name of the Adventure",
@@ -122,7 +122,7 @@
                                                             "type"          :   "string"
                                                         },
                                                         "class"     :   {
-                                                            "description"   :   "CSS class to apply to the text element. Not yet implemented",
+                                                            "description"   :   "CSS class to apply to the text element",
                                                             "type"          :   "string"
                                                         }
                                                     }

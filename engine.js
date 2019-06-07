@@ -1,19 +1,322 @@
-var time;
 var editorMode = false;
+const DEBUG = true;
 
 //Big Red Button
 function start() {
     //If the editor is requested, activate the editor
     if(window.location.hash == '#editor') startEditor();
 
-    //Activate audio
-    AudioJinn.invoke();
+    //Invoke the Core Jinn
+    InteractionJinn.invoke();
+    AnimationJinn.invoke();
 
-    go(adventure.meta.start);
-    window.requestAnimationFrame(onAnimationFrameHandler);
+    //Invoke lesser Jinn
+    OverlayJinn.invoke();
+    AudioJinn.invoke();
+    RoomJinn.invoke();
+
+    //Go to the first room of the Adventure
+    InteractionJinn.clickHandler( {'data' : {'go' : adventure.meta.start} } );
 }
 
 
+
+
+
+
+
+//Core Jinn
+
+class InteractionJinn {
+    //Core Jinn: Core Jinn are invoked before peripheral Jinn. Generally, they should not directly act on a peripheral Jinn; rather, peripheral Jinn register their methods with core Jinn when they're first invoked
+    //The primary function of this Jinn is to handle user input/interactions, and dispatch it to the correct Jinn
+
+    //Currently holding functionality for click.go, to be migrated out later.
+
+    static invoke() {
+        InteractionJinn.clickHandlers = {};
+    }
+
+    static register(key, func) {
+        //Register a click function w/ the Interaction Jinn
+        //key is the key which will define the click event (i.e. go, text, sfx)
+        //func is the function the value at the key will be passed to.
+        InteractionJinn.clickHandlers[key] = func;
+    }
+
+    static clickHandler(e) {
+        var click = e.data;
+        for (var key in click) {
+            if (key in InteractionJinn.clickHandlers) {
+                InteractionJinn.clickHandlers[key](click[key]);
+            }
+        }
+    }
+
+    static actionGo(id) {
+        AudioJinn.playTracks(adventure.rooms[id].tracks);
+        var div = buildRoom(id);
+        $('#room').empty().append(div);
+        if (editorMode) editorLoadRoom(id);//adventure.rooms[id]);
+    }
+
+}
+
+class AnimationJinn {
+    //The AnimationJinn presides over AnimationFrame events.
+    //Other pieces of the engine may register their own step functions with this Jinn
+
+    static invoke() {
+        AnimationJinn.time = 0;
+        AnimationJinn.registeredFunctions = [];
+        window.requestAnimationFrame(AnimationJinn.animationFrameHandler);
+    }
+
+    static register(func) {
+        //Register a step function w/ the Animation Jinn.
+        //Step functions *must* accept a deltaTime parameter.
+        //This will likely go through several revisions to accommodate growing experience w/ this kinda junk
+        AnimationJinn.registeredFunctions.push(func);
+    }
+
+    static animationFrameHandler(ts) { //time prime. primetime.
+        var deltaTime = ts-AnimationJinn.time;
+        AnimationJinn.time = ts;
+
+        for (const func of AnimationJinn.registeredFunctions) {
+            func(deltaTime);
+        }
+
+        window.requestAnimationFrame(AnimationJinn.animationFrameHandler);
+    }
+
+}
+
+//Peripheral Jinn
+
+class OverlayJinn {
+    //Lesser Jinn resposible for handling the click.text property
+    //Will likely evolve into a more full-featured "overlay" Jinn as more overlay-related functionality is needed
+
+    static invoke() {
+        InteractionJinn.register('text',  OverlayJinn.text);
+        AnimationJinn.register(OverlayJinn.step);
+    }
+
+
+    static step(dt) {
+        $('#overlay_svg').find('text').each(function (index, value) {
+            var t = $(this);
+            var ttl = t.data('ttl') - dt;
+            t.data('ttl', ttl);
+            if (ttl < 1200) {
+                    t.css('opacity', ttl/1200);
+            }
+            if (ttl < 0) {
+                t.remove();
+            }
+        });
+    }
+
+    static text(args) {
+        var svg = document.getElementById('overlay_svg');
+        var t = document.createElementNS(svg.namespaceURI, 'text');
+        svg.appendChild(t);
+
+        var classAttr = '';
+        if ('class' in args) {
+            classAttr = args.class;
+        }
+
+        t = $(t)
+            .html(args.string)
+            .data('ttl', 5000)
+            .attr('x', '1em')
+            .attr('y', '1.5em')
+            .attr('class', classAttr);
+    }
+
+}
+
+class AudioJinn {
+
+    static invoke () {
+        AudioJinn.sfx = {};
+        AudioJinn.tracks = {};
+
+        AudioJinn.loadSFX(adventure.sfx);
+        AudioJinn.loadTracks(adventure.tracks);
+
+        InteractionJinn.register('sfx',   AudioJinn.playSFX);
+    }
+
+    static loadSFX (sfx) {
+        for (var key in sfx) {
+            AudioJinn.sfx[key] = sfx[key];
+            var a = new Audio();
+            a.src = 'sfx/' + sfx[key].src;
+            AudioJinn.sfx[key].audio = a;
+            //TODO: load-safety, make the AudioJinn aware of whether or not resources are loaded
+        }
+    }
+
+    static loadTracks (tracks) {
+        for (var key in tracks) {
+            AudioJinn.tracks[key] = tracks[key];
+            var a = new Audio();
+            a.src = 'tracks/' + tracks[key].src;
+            a.loop = true;
+            AudioJinn.tracks[key].audio = a;
+        }
+    }
+
+
+    static playSFX (sfx) {
+        if (('key' in sfx) == false) return;
+        var key = sfx.key;
+
+        var volume = 1.0;
+        if ('volume' in sfx) {
+             volume = sfx.volume;
+        }
+
+        if (key in AudioJinn.sfx) {
+            AudioJinn.sfx[key].audio.volume = volume;
+            AudioJinn.sfx[key].audio.play();
+        }
+    }
+
+    static playTracks (tracks) {
+        if (tracks == undefined) tracks = {};
+        for (var key in AudioJinn.tracks) {
+            if (key in tracks) {
+                AudioJinn.tracks[key].audio.play();
+                AudioJinn.tracks[key].audio.volume = tracks[key]; //TODO: targetVolume and easing
+                AudioJinn.tracks[key].audio.loop = true;
+            } else {
+                AudioJinn.tracks[key].audio.volume = 0; //Don't pause it, but we should have a catcher for when a loop ends to pause it if volume is 0
+                AudioJinn.tracks[key].audio.loop = false; //Or maybe just this; just disable looping when a track becomes inaudible
+            }
+        }
+    }
+
+}
+
+class RoomJinn {
+
+    static invoke() {
+        InteractionJinn.register('go', RoomJinn.go);
+    }
+
+    static go(id) {
+        AudioJinn.playTracks(adventure.rooms[id].tracks);
+        var div = RoomJinn.buildRoom(id);
+        $('#room').empty().append(div);
+        if (editorMode) editorLoadRoom(id); //TODO: incorporate editor junk into its own Jinn
+    }
+
+
+    //NB: this helper function includes spaghetti references to window.adventure
+    static buildRoom(id) {
+        var room = adventure.rooms[id];
+        var img = $('<img>')
+            .attr('src', 'img/'+room.img)
+            .attr('usemap', '#'+id+'_map');
+        var map = $('<map/>')
+            .attr('name', id+'_map');
+        for (var hotspot_id in room.map){
+            var hotspot = room.map[hotspot_id];
+            var area = $('<area>')
+                .attr('id', id+'_'+hotspot_id)
+                .attr('shape', hotspot.area.shape)
+                .attr('coords', hotspot.area.coords)
+                .attr('class', hotspot.area.class)
+                .attr('tabindex', -1);
+            if ('click' in hotspot) {
+                area.click(hotspot.click, InteractionJinn.clickHandler);
+            }
+            map.append(area);
+        }
+        var div = $('<div/>')
+            .append(img)
+            .append(map);
+        return div;
+    }
+
+}
+
+class IOJinn {
+    //The IOJinn handles saving and loading Adventures and (eventually) adventure states
+
+    static getJSON() {
+        //stringify the adventure into JSON and return it.
+        //Get and Load JSON are the only direct references to global `adventure` in the IOJinn
+        return JSON.stringify(adventure, null, 4);
+    }
+
+    static loadJSON(json) {
+        //TODO: This function contains global references that will likely need cleanup during further despaghettification
+        //Parse a JSON string and load the adventure stored within
+        //Precondition: json is a string in JSON format representing an adventure
+        //Get and Load JSON are the only direct references to global `adventure` in the IOJinn
+        try {
+            var obj = JSON.parse(this.result);
+            adventure = obj;
+            start();
+        } catch (error) {
+            debug(error);
+        }
+    }
+
+    static offerDirectDownload() {
+        var json = IOJinn.getJSON();
+        var data = new Blob([json], {type : 'application/json'});
+        if (typeof IOJinn.exportURI !== 'undefined') {
+            window.URL.revokeObjectURL(IOJinn.exportURI);
+        }
+        IOJinn.exportURI = window.URL.createObjectURL(data);
+        var link = $('<a/>')
+            .attr('href', IOJinn.exportURI)
+            .attr('target', '_blank')
+            .attr('download', adventure.meta.name + '-' + Date.now() + '.json' );
+
+        $(document.body).append(link);
+        link[0].click();
+        //BUG
+        //For reasons I cannot get to the bottom of, this blanks the Mozilla inspector, presumably because it becomes disassociated from the window by "following" the href
+        //The demo here (https://www.w3schools.com/tags/tryit.asp?filename=tryhtml5_a_download) does not
+        //But even directly copying over the example (with adjusted paths) with no jquery interference gives the buggy result
+        //As this is an editor feature likely to be superceded and it still technically works, I'm not gonna chase this down right now
+        link.remove();
+    }
+
+    static enableDragAndDropLoading() {
+         //Based on https://www.html5rocks.com/en/tutorials/file/dndfiles/
+        var dropZone = document;
+        dropZone.addEventListener('dragover', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+        }, false);
+        dropZone.addEventListener('drop', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            if(!e.dataTransfer.files) return;
+            var file = e.dataTransfer.files[0]
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                IOJinn.loadJSON(this.result);
+            }
+            reader.readAsText(file);
+        }, false);
+    }
+
+
+}
+
+
+
+//Editor stuff pending being incorporated into a class
 
 function startEditor() {
     editorMode = true;
@@ -30,7 +333,7 @@ function startEditor() {
             .attr('src', 'img/' + adventure.rooms[id].img)
             .attr('alt', id)
             .attr('id', 'thumbnail-'+id)
-            .click({'go' : id}, clickHandler);
+            .click({'go' : id}, InteractionJinn.clickHandler);
         var span = $('<span></span>').html(id);
         var li = $('<li></li>')
             .append(img)
@@ -52,7 +355,7 @@ function startEditor() {
         grabbed.trigger('grabbed-drag-end');
         grabbed.removeClass('grabbed');
     }).on('keydown', function (e) {
-        debug(e);
+        //debug(e);
         if (e.key == 'Shift') {
             $('#overlay_svg_hotspot_editor').addClass('passthru');
         }
@@ -63,107 +366,12 @@ function startEditor() {
     });
 
     $('#button-export').on('click', function() {
-        exportAdventure();
+        //exportAdventure();
+        IOJinn.offerDirectDownload();
     })
+    IOJinn.enableDragAndDropLoading();
 
 }
-
-
-
-
-
-//Click event functions
-function go(id) {
-
-    AudioJinn.playTracks(adventure.rooms[id].tracks);
-
-    div = buildRoom(id);
-    $('#room').empty().append(div);
-
-
-    if (editorMode) editorLoadRoom(id);//adventure.rooms[id]);
-}
-
-function text(args) {
-    var svg = document.getElementById('overlay_svg');
-    var t = document.createElementNS(svg.namespaceURI, 'text');
-    svg.appendChild(t);
-
-    t = $(t)
-        .html(args.string)
-        .data('ttl', 5000)
-        .attr('x', '1em')
-        .attr('y', '1.5em');
-    //TODO: functionality to read in attributes like args.class
-}
-
-//Event handlers
-function clickHandler(e) {
-    var click = e.data;
-    if ('go' in click) {
-        go(click.go);
-    }
-    if ('text' in click) {
-        text(click.text);
-    }
-    if ('sfx' in click) {
-        AudioJinn.playSFX(click.sfx);
-    }
-}
-function onAnimationFrameHandler(ts) {
-    //OH THE MEMORIIIIIIES
-    if (!time) time = ts;
-    var deltaTime = ts-time;
-    time = ts;
-
-    $('#overlay_svg').find('text').each(function (index, value) {
-        var t = $(this);
-        var ttl = t.data('ttl') - deltaTime;
-        t.data('ttl', ttl);
-        if (ttl < 1200) {
-                t.css('opacity', ttl/1200);
-        }
-        if (ttl < 0) {
-            t.remove();
-        }
-    });
-
-    window.requestAnimationFrame(onAnimationFrameHandler);
-}
-
-
-
-function buildRoom(id) {
-    var room = adventure.rooms[id];
-    var img = $('<img>')
-        .attr('src', 'img/'+room.img)
-        .attr('usemap', '#'+id+'_map');
-    var map = $('<map></map>')
-        .attr('name', id+'_map');
-    for (var hotspot_id in room.map){
-        var hotspot = room.map[hotspot_id];
-        var area = $('<area>')
-            .attr('id', id+'_'+hotspot_id)
-            .attr('shape', hotspot.area.shape)
-            .attr('coords', hotspot.area.coords)
-            .attr('class', hotspot.area.class)
-            .attr('tabindex', -1);
-        if ('click' in hotspot) {
-            area.click(hotspot.click, clickHandler);
-        }
-        map.append(area);
-    }
-
-    var div = $('<div></div>')
-        .append(img)
-        .append(map);
-    return div;
-}
-
-
-
-
-
 
 function editorLoadRoom(id) {
 
@@ -210,13 +418,11 @@ function editorLoadRoom(id) {
 }
 
 
+//Window level helper functions
+
 function svg(tag) {
     return document.createElementNS('http://www.w3.org/2000/svg', tag)
 }
-
-
-
-
 
 function getLocalCoords(e, context) {
     //for mouse event `e`, return the localised coordinates of the mouse event within the SVG element
@@ -237,10 +443,8 @@ function getLocalCoords(e, context) {
 }
 
 
+//JQuery extender functions
 
-$.fn.svg = function (tag) {
-    return $(document.createElementNS('http://www.w3.org/2000/svg', tag));
-}
 $.fn.appendChild = function(child) {
     child = $(child);
     this[0].appendChild(child[0])
@@ -573,121 +777,6 @@ class HotspotProperties {
 }
 
 
-var exportURI = null;
-function exportAdventure() {
-    debug('attempting export');
-    var json = JSON.stringify(adventure, null, 4);
-    var data = new Blob([json], {type : 'application/json'});
-    debug(data);
-    if (exportURI !== null) {
-        window.URL.revokeObjectURL(exportURI);
-    }
-    exportURI = window.URL.createObjectURL(data);
-    //weird but works:  https://stackoverflow.com/questions/21012580/is-it-possible-to-write-data-to-file-using-only-javascript
-    $('#button-export')
-        .attr('href', exportURI)
-        .attr('download', adventure.meta.name + '-' + Date.now() + '.json' );
-}
-
-
-
-function enableLoading() {
-    //https://www.html5rocks.com/en/tutorials/file/dndfiles/
-    var dropZone = $('#drop-zone')[0];
-    dropZone = document;
-    dropZone.addEventListener('dragover', function(e) {
-        e.stopPropagation();
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'copy';
-    }, false);
-    dropZone.addEventListener('drop', function(e) {
-        e.stopPropagation();
-        e.preventDefault();
-        if(!e.dataTransfer.files) return;
-        var file = e.dataTransfer.files[0]
-        var reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                var obj = JSON.parse(this.result);
-                console.log(obj);
-                adventure = obj;
-                start();
-            } catch (error) {
-                debug(error);
-            }
-        }
-        reader.readAsText(file);
-    }, false);
-}
-
-
-
-
-class AudioJinn {
-
-    static invoke () {
-        AudioJinn.sfx = {};
-        AudioJinn.tracks = {};
-
-        AudioJinn.loadSFX(adventure.sfx);
-        AudioJinn.loadTracks(adventure.tracks);
-    }
-
-    static loadSFX (sfx) {
-        for (var key in sfx) {
-            AudioJinn.sfx[key] = sfx[key];
-            var a = new Audio();
-            a.src = 'sfx/' + sfx[key].src;
-            AudioJinn.sfx[key].audio = a;
-            //TODO: load-safety, make the AudioJinn aware of whether or not resources are loaded
-        }
-    }
-
-    static loadTracks (tracks) {
-        for (var key in tracks) {
-            AudioJinn.tracks[key] = tracks[key];
-            var a = new Audio();
-            a.src = 'tracks/' + tracks[key].src;
-            a.loop = true;
-            AudioJinn.tracks[key].audio = a;
-        }
-    }
-
-
-    static playSFX (sfx) {
-        if (('key' in sfx) == false) return;
-        var key = sfx.key;
-
-        var volume = 1.0;
-        if ('volume' in sfx) {
-             volume = sfx.volume;
-        }
-
-        if (key in AudioJinn.sfx) {
-            AudioJinn.sfx[key].audio.volume = volume;
-            AudioJinn.sfx[key].audio.play();
-        }
-    }
-
-
-
-    static playTracks (tracks) {
-        if (tracks == undefined) tracks = {};
-        for (var key in AudioJinn.tracks) {
-            if (key in tracks) {
-                AudioJinn.tracks[key].audio.play();
-                AudioJinn.tracks[key].audio.volume = tracks[key]; //TODO: targetVolume and easing
-                AudioJinn.tracks[key].audio.loop = true;
-            } else {
-                AudioJinn.tracks[key].audio.volume = 0; //Don't pause it, but we should have a catcher for when a loop ends to pause it if volume is 0
-                AudioJinn.tracks[key].audio.loop = false; //Or maybe just this; just disable looping when a track becomes inaudible
-            }
-        }
-    }
-
-
-
-}
 
 
 
@@ -697,7 +786,9 @@ class AudioJinn {
 
 
 
-const DEBUG = true;
+
+
+
 function debug(object) {
     if (DEBUG) console.log(object);
 }
