@@ -10,7 +10,7 @@ function start() {
     AnimationJinn.invoke();
 
     //Invoke lesser Jinn
-    TextJinn.invoke();
+    OverlayJinn.invoke();
     AudioJinn.invoke();
     //TODO: write EuclidJinn for ``click.go`` property and to hold romm builder
 
@@ -150,13 +150,13 @@ class AnimationJinn {
 
 //Peripheral Jinn
 
-class TextJinn {
+class OverlayJinn {
     //Lesser Jinn resposible for handling the click.text property
     //Will likely evolve into a more full-featured "overlay" Jinn as more overlay-related functionality is needed
 
     static invoke() {
-        InteractionJinn.register('text',  TextJinn.text);
-        AnimationJinn.register(TextJinn.step);
+        InteractionJinn.register('text',  OverlayJinn.text);
+        AnimationJinn.register(OverlayJinn.step);
     }
 
 
@@ -190,9 +190,6 @@ class TextJinn {
             .attr('x', '1em')
             .attr('y', '1.5em')
             .attr('class', classAttr);
-
-
-        //TODO: functionality to read in attributes like args.class
     }
 
 }
@@ -260,6 +257,7 @@ class AudioJinn {
     }
 
 }
+
 
 
 function buildRoom(id) {
