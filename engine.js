@@ -12,6 +12,9 @@ function start() {
     //Activate animation handler
     AnimationJinn.invoke();
 
+    //Activate interaction handler
+    InteractionJinn.invoke();
+
     go(adventure.meta.start);
     window.requestAnimationFrame(onAnimationFrameHandler);
 }
@@ -137,6 +140,41 @@ function onAnimationFrameHandler(ts) {
 }
 
 
+class InteractionJinn {
+    //Handles interactions.
+    //Should be aware of all possible properties of a Click object
+    //Replaces clickHandler, and will hold all functionality triggered by click events that don't already have their own dedicated Jinn
+
+    static invoke() {
+        InteractionJinn.clickHandlers = {};
+        InteractionJinn.register('go',    go);
+        InteractionJinn.register('text',  text);
+        InteractionJinn.register('sfx',   AudioJinn.playSFX);
+    }
+
+    static register(key, func) {
+        //Register a click function w/ the Interaction Jinn
+        //key is the key which will define the click event (i.e. go, text, sfx)
+        //func is the function the value at the key will be passed to.
+        InteractionJinn.clickHandlers[key] = func;
+    }
+
+    static clickHandler(e) {
+        var click = e.data;
+        for (var key in click) {
+            if (key in InteractionJinn.clickHandlers) {
+                InteractionJinn.clickHandlers[key](click[key]);
+            }
+        }
+    }
+
+    //The InteractionJinn is currently responsible for the 'text' event, so it must also hold the code that makes text fade out.
+    //Should the 'text' event grow big enough to merit one, or the convention evolve such, it will be migrated outwards to its own dedicated Jinn
+
+
+}
+
+
 class AnimationJinn {
     //The AnimationJinn presides over AnimationFrame events.
     //Other pieces of the engine may register their own step functions with this Jinn
@@ -185,7 +223,8 @@ function buildRoom(id) {
             .attr('class', hotspot.area.class)
             .attr('tabindex', -1);
         if ('click' in hotspot) {
-            area.click(hotspot.click, clickHandler);
+            //area.click(hotspot.click, clickHandler);
+            area.click(hotspot.click, InteractionJinn.clickHandler);
         }
         map.append(area);
     }
