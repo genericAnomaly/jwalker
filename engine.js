@@ -15,7 +15,7 @@ function start() {
     //Activate interaction handler
     InteractionJinn.invoke();
 
-    go(adventure.meta.start);
+    InteractionJinn.actionGo(adventure.meta.start);
     //window.requestAnimationFrame(onAnimationFrameHandler);
 }
 
@@ -81,6 +81,7 @@ function startEditor() {
 
 
 //Click event functions
+/*
 function go(id) {
 
     AudioJinn.playTracks(adventure.rooms[id].tracks);
@@ -104,30 +105,8 @@ function text(args) {
         .attr('y', '1.5em');
     //TODO: functionality to read in attributes like args.class
 }
-
-//Event handlers
-/*
-function onAnimationFrameHandler(ts) {
-    //OH THE MEMORIIIIIIES
-    if (!time) time = ts;
-    var deltaTime = ts-time;
-    time = ts;
-
-    $('#overlay_svg').find('text').each(function (index, value) {
-        var t = $(this);
-        var ttl = t.data('ttl') - deltaTime;
-        t.data('ttl', ttl);
-        if (ttl < 1200) {
-                t.css('opacity', ttl/1200);
-        }
-        if (ttl < 0) {
-            t.remove();
-        }
-    });
-
-    window.requestAnimationFrame(onAnimationFrameHandler);
-}
 */
+
 
 class InteractionJinn {
     //Handles user interactions. Subject to revision.
@@ -194,7 +173,7 @@ class InteractionJinn {
 
     static actionGo(id) {
         AudioJinn.playTracks(adventure.rooms[id].tracks);
-        div = buildRoom(id);
+        var div = buildRoom(id);
         $('#room').empty().append(div);
         if (editorMode) editorLoadRoom(id);//adventure.rooms[id]);
     }
