@@ -117,7 +117,7 @@ class InteractionJinn {
 
     static invoke() {
         InteractionJinn.clickHandlers = {};
-        InteractionJinn.register('sfx',   AudioJinn.playSFX);
+        InteractionJinn.register('sfx',   AudioJinn.playSFX);   //Should this be moved to the AudioJinn's invoke?
         InteractionJinn.register('go',    InteractionJinn.actionGo);
         InteractionJinn.register('text',  InteractionJinn.actionText);
         InteractionJinn.registerTextFadeAnimationHandler();
