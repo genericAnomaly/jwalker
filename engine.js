@@ -63,7 +63,8 @@ function startEditor() {
     });
 
     $('#button-export').on('click', function() {
-        exportAdventure();
+        //exportAdventure();
+        IOJinn.offerDirectDownload();
     })
 
 }
@@ -573,6 +574,7 @@ class HotspotProperties {
 }
 
 
+/*
 var exportURI = null;
 function exportAdventure() {
     debug('attempting export');
@@ -588,7 +590,7 @@ function exportAdventure() {
         .attr('href', exportURI)
         .attr('download', adventure.meta.name + '-' + Date.now() + '.json' );
 }
-
+*/
 
 
 function enableLoading() {
@@ -690,6 +692,41 @@ class AudioJinn {
 }
 
 
+class IOJinn {
+    /**
+     * The IOJinn handles saving and loading Adventures and (eventually) adventure states
+     */
+
+     static getJSON() {
+         //stringify the adventure into JSON and return it.
+         //Only direct reference to global `adventure` in the IOJinn
+         return JSON.stringify(adventure, null, 4);
+     }
+
+     static offerDirectDownload() {
+         var json = IOJinn.getJSON();
+         var data = new Blob([json], {type : 'application/json'});
+         if (typeof IOJinn.exportURI !== 'undefined') {
+             window.URL.revokeObjectURL(IOJinn.exportURI);
+         }
+         IOJinn.exportURI = window.URL.createObjectURL(data);
+         var link = $('<a/>')
+            .attr('href', IOJinn.exportURI)
+            .attr('target', '_blank')
+            .attr('download', adventure.meta.name + '-' + Date.now() + '.json' );
+         debug(IOJinn.exportURI);
+
+         $(document.body).append(link);
+         link[0].click();
+         //BUG
+         //For reasons I cannot get to the bottom of, this blanks the Mozilla inspector, presumably because it becomes disassociated from the window by "following" the href
+         //The demo here (https://www.w3schools.com/tags/tryit.asp?filename=tryhtml5_a_download) does not
+         //But even directly copying over the example (with adjusted paths) with no jquery interference gives the buggy result
+         //As this is an editor feature likely to be superceded and it still technically works, I'm not gonna chase this down right now
+         link.remove();
+     }
+
+}
 
 
 
