@@ -1,4 +1,3 @@
-var time;
 var editorMode = false;
 
 //Big Red Button
@@ -6,14 +5,19 @@ function start() {
     //If the editor is requested, activate the editor
     if(window.location.hash == '#editor') startEditor();
 
-    //Activate audio
-    AudioJinn.invoke();
+    //Activate interaction handler
+    InteractionJinn.invoke();
 
     //Activate animation handler
     AnimationJinn.invoke();
 
-    //Activate interaction handler
-    InteractionJinn.invoke();
+    //Register animationHandlers now that the AnimationJinn is invoked
+    InteractionJinn.registerTextFadeAnimationHandler(); //I think yeah, all possible actions should have their own Jinn that registers with the core Jinn like Interaction and Animation after they've been invoked
+
+    //Activate audio
+    AudioJinn.invoke();
+
+
 
     InteractionJinn.actionGo(adventure.meta.start);
     //window.requestAnimationFrame(onAnimationFrameHandler);
@@ -93,7 +97,6 @@ class InteractionJinn {
         InteractionJinn.register('sfx',   AudioJinn.playSFX);   //Should this be moved to the AudioJinn's invoke?
         InteractionJinn.register('go',    InteractionJinn.actionGo);
         InteractionJinn.register('text',  InteractionJinn.actionText);
-        InteractionJinn.registerTextFadeAnimationHandler();
     }
 
     static register(key, func) {
