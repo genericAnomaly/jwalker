@@ -80,33 +80,6 @@ function startEditor() {
 
 
 
-//Click event functions
-/*
-function go(id) {
-
-    AudioJinn.playTracks(adventure.rooms[id].tracks);
-
-    div = buildRoom(id);
-    $('#room').empty().append(div);
-
-
-    if (editorMode) editorLoadRoom(id);//adventure.rooms[id]);
-}
-
-function text(args) {
-    var svg = document.getElementById('overlay_svg');
-    var t = document.createElementNS(svg.namespaceURI, 'text');
-    svg.appendChild(t);
-
-    t = $(t)
-        .html(args.string)
-        .data('ttl', 5000)
-        .attr('x', '1em')
-        .attr('y', '1.5em');
-    //TODO: functionality to read in attributes like args.class
-}
-*/
-
 
 class InteractionJinn {
     //Handles user interactions. Subject to revision.
