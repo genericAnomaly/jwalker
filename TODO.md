@@ -26,6 +26,7 @@
 	* Finish despaghettification:
 		* Pack editor high-level functionality into a class
 		* Need a high-level class for pseudo-globals currently living in ``window``, namely ``var adventure`` and ``function start()``
+* README.md could use some words.
 
 
 ## Reevaluate
