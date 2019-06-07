@@ -306,35 +306,6 @@ class RoomJinn {
 
 }
 
-/*
-function buildRoom(id) {
-    var room = adventure.rooms[id];
-    var img = $('<img>')
-        .attr('src', 'img/'+room.img)
-        .attr('usemap', '#'+id+'_map');
-    var map = $('<map></map>')
-        .attr('name', id+'_map');
-    for (var hotspot_id in room.map){
-        var hotspot = room.map[hotspot_id];
-        var area = $('<area>')
-            .attr('id', id+'_'+hotspot_id)
-            .attr('shape', hotspot.area.shape)
-            .attr('coords', hotspot.area.coords)
-            .attr('class', hotspot.area.class)
-            .attr('tabindex', -1);
-        if ('click' in hotspot) {
-            area.click(hotspot.click, InteractionJinn.clickHandler);
-        }
-        map.append(area);
-    }
-
-    var div = $('<div></div>')
-        .append(img)
-        .append(map);
-    return div;
-}
-*/
-
 
 
 
@@ -411,10 +382,6 @@ function getLocalCoords(e, context) {
 }
 
 
-
-$.fn.svg = function (tag) {
-    return $(document.createElementNS('http://www.w3.org/2000/svg', tag));
-}
 $.fn.appendChild = function(child) {
     child = $(child);
     this[0].appendChild(child[0])
