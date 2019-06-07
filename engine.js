@@ -9,6 +9,9 @@ function start() {
     //Activate audio
     AudioJinn.invoke();
 
+    //Activate animation handler
+    AnimationJinn.invoke();
+
     go(adventure.meta.start);
     window.requestAnimationFrame(onAnimationFrameHandler);
 }
@@ -52,7 +55,7 @@ function startEditor() {
         grabbed.trigger('grabbed-drag-end');
         grabbed.removeClass('grabbed');
     }).on('keydown', function (e) {
-        debug(e);
+        //debug(e);
         if (e.key == 'Shift') {
             $('#overlay_svg_hotspot_editor').addClass('passthru');
         }
@@ -131,6 +134,37 @@ function onAnimationFrameHandler(ts) {
     });
 
     window.requestAnimationFrame(onAnimationFrameHandler);
+}
+
+
+class AnimationJinn {
+    //The AnimationJinn presides over AnimationFrame events.
+    //Other pieces of the engine may register their own step functions with this Jinn
+
+    static invoke() {
+        AnimationJinn.time = 0;
+        AnimationJinn.registeredFunctions = [];
+        window.requestAnimationFrame(AnimationJinn.animationFrameHandler);
+    }
+
+    static register(func) {
+        //Register a step function w/ the Animation Jinn.
+        //Step functions *must* accept a deltaTime parameter.
+        //This will likely go through several revisions to accommodate growing experience w/ this kinda junk
+        AnimationJinn.registeredFunctions.push(func);
+    }
+
+    static animationFrameHandler(ts) { //time prime. primetime.
+        var deltaTime = ts-AnimationJinn.time;
+        AnimationJinn.time = ts;
+
+        for (const func of AnimationJinn.registeredFunctions) {
+            func(deltaTime);
+        }
+
+        window.requestAnimationFrame(AnimationJinn.animationFrameHandler);
+    }
+
 }
 
 
@@ -679,7 +713,6 @@ class IOJinn {
             .attr('href', IOJinn.exportURI)
             .attr('target', '_blank')
             .attr('download', adventure.meta.name + '-' + Date.now() + '.json' );
-        debug(IOJinn.exportURI);
 
         $(document.body).append(link);
         link[0].click();
@@ -707,15 +740,6 @@ class IOJinn {
             var reader = new FileReader();
             reader.onload = function(e) {
                 IOJinn.loadJSON(this.result);
-                /*
-                try {
-                    var obj = JSON.parse(this.result);
-                    adventure = obj;
-                    start();
-                } catch (error) {
-                    debug(error);
-                }
-                */
             }
             reader.readAsText(file);
         }, false);
