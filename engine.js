@@ -296,9 +296,6 @@ class RoomJinn {
         return div;
     }
 
-
-
-
 }
 
 
