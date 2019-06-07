@@ -16,7 +16,7 @@ function start() {
     InteractionJinn.invoke();
 
     go(adventure.meta.start);
-    window.requestAnimationFrame(onAnimationFrameHandler);
+    //window.requestAnimationFrame(onAnimationFrameHandler);
 }
 
 
@@ -36,7 +36,7 @@ function startEditor() {
             .attr('src', 'img/' + adventure.rooms[id].img)
             .attr('alt', id)
             .attr('id', 'thumbnail-'+id)
-            .click({'go' : id}, clickHandler);
+            .click({'go' : id}, InteractionJinn.clickHandler);
         var span = $('<span></span>').html(id);
         var li = $('<li></li>')
             .append(img)
@@ -106,18 +106,7 @@ function text(args) {
 }
 
 //Event handlers
-/*function clickHandler(e) {
-    var click = e.data;
-    if ('go' in click) {
-        go(click.go);
-    }
-    if ('text' in click) {
-        text(click.text);
-    }
-    if ('sfx' in click) {
-        AudioJinn.playSFX(click.sfx);
-    }
-}*/
+/*
 function onAnimationFrameHandler(ts) {
     //OH THE MEMORIIIIIIES
     if (!time) time = ts;
@@ -138,7 +127,7 @@ function onAnimationFrameHandler(ts) {
 
     window.requestAnimationFrame(onAnimationFrameHandler);
 }
-
+*/
 
 class InteractionJinn {
     //Handles user interactions. Subject to revision.
@@ -149,9 +138,10 @@ class InteractionJinn {
 
     static invoke() {
         InteractionJinn.clickHandlers = {};
-        InteractionJinn.register('go',    go);
-        InteractionJinn.register('text',  text);
         InteractionJinn.register('sfx',   AudioJinn.playSFX);
+        InteractionJinn.register('go',    InteractionJinn.actionGo);
+        InteractionJinn.register('text',  InteractionJinn.actionText);
+        InteractionJinn.registerTextFadeAnimationHandler();
     }
 
     static register(key, func) {
@@ -172,7 +162,42 @@ class InteractionJinn {
 
     //The InteractionJinn is currently responsible for the 'text' event, so it must also hold the code that makes text fade out.
     //Should the 'text' event grow big enough to merit one, or the convention evolve such, it will be migrated outwards to its own dedicated Jinn
+    static actionText(args) {
+        var svg = document.getElementById('overlay_svg');
+        var t = document.createElementNS(svg.namespaceURI, 'text');
+        svg.appendChild(t);
 
+        t = $(t)
+            .html(args.string)
+            .data('ttl', 5000)
+            .attr('x', '1em')
+            .attr('y', '1.5em');
+        //TODO: functionality to read in attributes like args.class
+    }
+    static registerTextFadeAnimationHandler() {
+        AnimationJinn.register(function(dt) {
+            $('#overlay_svg').find('text').each(function (index, value) {
+                var t = $(this);
+                var ttl = t.data('ttl') - dt;
+                t.data('ttl', ttl);
+                if (ttl < 1200) {
+                        t.css('opacity', ttl/1200);
+                }
+                if (ttl < 0) {
+                    t.remove();
+                }
+            });
+        })
+
+
+    }
+
+    static actionGo(id) {
+        AudioJinn.playTracks(adventure.rooms[id].tracks);
+        div = buildRoom(id);
+        $('#room').empty().append(div);
+        if (editorMode) editorLoadRoom(id);//adventure.rooms[id]);
+    }
 
 }
 
