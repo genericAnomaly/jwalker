@@ -13,8 +13,6 @@ function start() {
     OverlayJinn.invoke();
     AudioJinn.invoke();
     RoomJinn.invoke();
-    //TODO: write EuclidJinn for ``click.go`` property and to hold romm builder
-
 
     //Go to the first room of the Adventure
     InteractionJinn.clickHandler( {'data' : {'go' : adventure.meta.start} } );
@@ -260,7 +258,6 @@ class AudioJinn {
 class RoomJinn {
 
     static invoke() {
-        //TODO: register go action
         InteractionJinn.register('go', RoomJinn.go);
     }
 
@@ -268,18 +265,17 @@ class RoomJinn {
         AudioJinn.playTracks(adventure.rooms[id].tracks);
         var div = RoomJinn.buildRoom(id);
         $('#room').empty().append(div);
-        if (editorMode) editorLoadRoom(id); //TODO: incorporate
+        if (editorMode) editorLoadRoom(id); //TODO: incorporate editor junk into its own Jinn
     }
 
 
     //NB: this helper function includes spaghetti references to window.adventure
-    //TODO: significant cleanup
     static buildRoom(id) {
         var room = adventure.rooms[id];
         var img = $('<img>')
             .attr('src', 'img/'+room.img)
             .attr('usemap', '#'+id+'_map');
-        var map = $('<map></map>')
+        var map = $('<map/>')
             .attr('name', id+'_map');
         for (var hotspot_id in room.map){
             var hotspot = room.map[hotspot_id];
@@ -294,8 +290,7 @@ class RoomJinn {
             }
             map.append(area);
         }
-
-        var div = $('<div></div>')
+        var div = $('<div/>')
             .append(img)
             .append(map);
         return div;
