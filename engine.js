@@ -12,6 +12,7 @@ function start() {
     //Invoke lesser Jinn
     OverlayJinn.invoke();
     AudioJinn.invoke();
+    RoomJinn.invoke();
     //TODO: write EuclidJinn for ``click.go`` property and to hold romm builder
 
 
@@ -89,8 +90,6 @@ class InteractionJinn {
 
     static invoke() {
         InteractionJinn.clickHandlers = {};
-           //Should this be moved to the AudioJinn's invoke?
-        InteractionJinn.register('go',    InteractionJinn.actionGo);
     }
 
     static register(key, func) {
@@ -258,8 +257,56 @@ class AudioJinn {
 
 }
 
+class RoomJinn {
+
+    static invoke() {
+        //TODO: register go action
+        InteractionJinn.register('go', RoomJinn.go);
+    }
+
+    static go(id) {
+        AudioJinn.playTracks(adventure.rooms[id].tracks);
+        var div = RoomJinn.buildRoom(id);
+        $('#room').empty().append(div);
+        if (editorMode) editorLoadRoom(id); //TODO: incorporate
+    }
 
 
+    //NB: this helper function includes spaghetti references to window.adventure
+    //TODO: significant cleanup
+    static buildRoom(id) {
+        var room = adventure.rooms[id];
+        var img = $('<img>')
+            .attr('src', 'img/'+room.img)
+            .attr('usemap', '#'+id+'_map');
+        var map = $('<map></map>')
+            .attr('name', id+'_map');
+        for (var hotspot_id in room.map){
+            var hotspot = room.map[hotspot_id];
+            var area = $('<area>')
+                .attr('id', id+'_'+hotspot_id)
+                .attr('shape', hotspot.area.shape)
+                .attr('coords', hotspot.area.coords)
+                .attr('class', hotspot.area.class)
+                .attr('tabindex', -1);
+            if ('click' in hotspot) {
+                area.click(hotspot.click, InteractionJinn.clickHandler);
+            }
+            map.append(area);
+        }
+
+        var div = $('<div></div>')
+            .append(img)
+            .append(map);
+        return div;
+    }
+
+
+
+
+}
+
+/*
 function buildRoom(id) {
     var room = adventure.rooms[id];
     var img = $('<img>')
@@ -286,7 +333,7 @@ function buildRoom(id) {
         .append(map);
     return div;
 }
-
+*/
 
 
 
