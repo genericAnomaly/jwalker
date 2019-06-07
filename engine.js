@@ -15,9 +15,8 @@ function start() {
     //TODO: write EuclidJinn for ``click.go`` property and to hold romm builder
 
 
-
-    InteractionJinn.actionGo(adventure.meta.start);
-    //window.requestAnimationFrame(onAnimationFrameHandler);
+    //Go to the first room of the Adventure
+    InteractionJinn.clickHandler( {'data' : {'go' : adventure.meta.start} } );
 }
 
 
@@ -84,10 +83,9 @@ function startEditor() {
 
 class InteractionJinn {
     //Handles user interactions. Subject to revision.
-    //This Jinn's invoke method touches many other Jinn without a formalised interface, be advised of rippling potential
     //The primary function of this Jinn is to handle user input/interactions, and dispatch it to the correct Jinn
-    //Replaces window.clickHandler
-    //During despaghettification, this will hold all functionality triggered by click events that don't already have their own dedicated Jinn. Long term this will likely change
+
+    //Currently holding functionality for click.go, to be migrated out later.
 
     static invoke() {
         InteractionJinn.clickHandlers = {};
