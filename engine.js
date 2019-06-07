@@ -1,4 +1,5 @@
 var editorMode = false;
+const DEBUG = true;
 
 //Big Red Button
 function start() {
@@ -20,60 +21,6 @@ function start() {
 
 
 
-function startEditor() {
-    editorMode = true;
-
-    //Show editor panels (TODO: replace this with a function to build them from scratch maybe)
-    $('#editor-roomlist').show();
-    $('#editor-properties').show();
-    $('#button-export').show();
-    $('#drop-zone').show();
-
-    $('#roomlist-panel').empty();
-    for (var id in adventure.rooms) {
-        var img = $('<img>')
-            .attr('src', 'img/' + adventure.rooms[id].img)
-            .attr('alt', id)
-            .attr('id', 'thumbnail-'+id)
-            .click({'go' : id}, InteractionJinn.clickHandler);
-        var span = $('<span></span>').html(id);
-        var li = $('<li></li>')
-            .append(img)
-            .append(span);
-        $('#roomlist-panel').append(li);
-    }
-
-    //Create a document level listener for mouse movement to handle point-handle movement.
-    $(document).on('mousemove', function(e) {
-        var grabbed = $('.grabbed');
-        if (grabbed.length === 0) return;
-        //If a handle is currently grabbed, trigger our custom grabbed-drag event, and pre-digest it to local coordinates
-        var pt = getLocalCoords(e, $('#overlay_svg'));
-        grabbed.trigger('grabbed-drag', pt);
-
-    }).on('mouseup', function () {
-        var grabbed = $('.grabbed');
-        if (grabbed.length === 0) return;
-        grabbed.trigger('grabbed-drag-end');
-        grabbed.removeClass('grabbed');
-    }).on('keydown', function (e) {
-        //debug(e);
-        if (e.key == 'Shift') {
-            $('#overlay_svg_hotspot_editor').addClass('passthru');
-        }
-    }).on('keyup', function (e) {
-        if (e.key == 'Shift') {
-            $('#overlay_svg_hotspot_editor').removeClass('passthru');
-        }
-    });
-
-    $('#button-export').on('click', function() {
-        //exportAdventure();
-        IOJinn.offerDirectDownload();
-    })
-    IOJinn.enableDragAndDropLoading();
-
-}
 
 
 
@@ -298,9 +245,133 @@ class RoomJinn {
 
 }
 
+class IOJinn {
+    //The IOJinn handles saving and loading Adventures and (eventually) adventure states
+
+    static getJSON() {
+        //stringify the adventure into JSON and return it.
+        //Get and Load JSON are the only direct references to global `adventure` in the IOJinn
+        return JSON.stringify(adventure, null, 4);
+    }
+
+    static loadJSON(json) {
+        //TODO: This function contains global references that will likely need cleanup during further despaghettification
+        //Parse a JSON string and load the adventure stored within
+        //Precondition: json is a string in JSON format representing an adventure
+        //Get and Load JSON are the only direct references to global `adventure` in the IOJinn
+        try {
+            var obj = JSON.parse(this.result);
+            adventure = obj;
+            start();
+        } catch (error) {
+            debug(error);
+        }
+    }
+
+    static offerDirectDownload() {
+        var json = IOJinn.getJSON();
+        var data = new Blob([json], {type : 'application/json'});
+        if (typeof IOJinn.exportURI !== 'undefined') {
+            window.URL.revokeObjectURL(IOJinn.exportURI);
+        }
+        IOJinn.exportURI = window.URL.createObjectURL(data);
+        var link = $('<a/>')
+            .attr('href', IOJinn.exportURI)
+            .attr('target', '_blank')
+            .attr('download', adventure.meta.name + '-' + Date.now() + '.json' );
+
+        $(document.body).append(link);
+        link[0].click();
+        //BUG
+        //For reasons I cannot get to the bottom of, this blanks the Mozilla inspector, presumably because it becomes disassociated from the window by "following" the href
+        //The demo here (https://www.w3schools.com/tags/tryit.asp?filename=tryhtml5_a_download) does not
+        //But even directly copying over the example (with adjusted paths) with no jquery interference gives the buggy result
+        //As this is an editor feature likely to be superceded and it still technically works, I'm not gonna chase this down right now
+        link.remove();
+    }
+
+    static enableDragAndDropLoading() {
+         //Based on https://www.html5rocks.com/en/tutorials/file/dndfiles/
+        var dropZone = document;
+        dropZone.addEventListener('dragover', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+        }, false);
+        dropZone.addEventListener('drop', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            if(!e.dataTransfer.files) return;
+            var file = e.dataTransfer.files[0]
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                IOJinn.loadJSON(this.result);
+            }
+            reader.readAsText(file);
+        }, false);
+    }
+
+
+}
 
 
 
+//Editor stuff pending being incorporated into a class
+
+function startEditor() {
+    editorMode = true;
+
+    //Show editor panels (TODO: replace this with a function to build them from scratch maybe)
+    $('#editor-roomlist').show();
+    $('#editor-properties').show();
+    $('#button-export').show();
+    $('#drop-zone').show();
+
+    $('#roomlist-panel').empty();
+    for (var id in adventure.rooms) {
+        var img = $('<img>')
+            .attr('src', 'img/' + adventure.rooms[id].img)
+            .attr('alt', id)
+            .attr('id', 'thumbnail-'+id)
+            .click({'go' : id}, InteractionJinn.clickHandler);
+        var span = $('<span></span>').html(id);
+        var li = $('<li></li>')
+            .append(img)
+            .append(span);
+        $('#roomlist-panel').append(li);
+    }
+
+    //Create a document level listener for mouse movement to handle point-handle movement.
+    $(document).on('mousemove', function(e) {
+        var grabbed = $('.grabbed');
+        if (grabbed.length === 0) return;
+        //If a handle is currently grabbed, trigger our custom grabbed-drag event, and pre-digest it to local coordinates
+        var pt = getLocalCoords(e, $('#overlay_svg'));
+        grabbed.trigger('grabbed-drag', pt);
+
+    }).on('mouseup', function () {
+        var grabbed = $('.grabbed');
+        if (grabbed.length === 0) return;
+        grabbed.trigger('grabbed-drag-end');
+        grabbed.removeClass('grabbed');
+    }).on('keydown', function (e) {
+        //debug(e);
+        if (e.key == 'Shift') {
+            $('#overlay_svg_hotspot_editor').addClass('passthru');
+        }
+    }).on('keyup', function (e) {
+        if (e.key == 'Shift') {
+            $('#overlay_svg_hotspot_editor').removeClass('passthru');
+        }
+    });
+
+    $('#button-export').on('click', function() {
+        //exportAdventure();
+        IOJinn.offerDirectDownload();
+    })
+    IOJinn.enableDragAndDropLoading();
+
+}
 
 function editorLoadRoom(id) {
 
@@ -347,13 +418,11 @@ function editorLoadRoom(id) {
 }
 
 
+//Window level helper functions
+
 function svg(tag) {
     return document.createElementNS('http://www.w3.org/2000/svg', tag)
 }
-
-
-
-
 
 function getLocalCoords(e, context) {
     //for mouse event `e`, return the localised coordinates of the mouse event within the SVG element
@@ -373,6 +442,8 @@ function getLocalCoords(e, context) {
     //NB: This appears to generate a significant bug in Mozilla Firefox when the main div is absolutely positioned and transformed. Commenting out that styling for now.
 }
 
+
+//JQuery extender functions
 
 $.fn.appendChild = function(child) {
     child = $(child);
@@ -712,83 +783,12 @@ class HotspotProperties {
 
 
 
-class IOJinn {
-    //The IOJinn handles saving and loading Adventures and (eventually) adventure states
-
-    static getJSON() {
-        //stringify the adventure into JSON and return it.
-        //Get and Load JSON are the only direct references to global `adventure` in the IOJinn
-        return JSON.stringify(adventure, null, 4);
-    }
-
-    static loadJSON(json) {
-        //TODO: This function contains global references that will likely need cleanup during further despaghettification
-        //Parse a JSON string and load the adventure stored within
-        //Precondition: json is a string in JSON format representing an adventure
-        //Get and Load JSON are the only direct references to global `adventure` in the IOJinn
-        try {
-            var obj = JSON.parse(this.result);
-            adventure = obj;
-            start();
-        } catch (error) {
-            debug(error);
-        }
-    }
-
-    static offerDirectDownload() {
-        var json = IOJinn.getJSON();
-        var data = new Blob([json], {type : 'application/json'});
-        if (typeof IOJinn.exportURI !== 'undefined') {
-            window.URL.revokeObjectURL(IOJinn.exportURI);
-        }
-        IOJinn.exportURI = window.URL.createObjectURL(data);
-        var link = $('<a/>')
-            .attr('href', IOJinn.exportURI)
-            .attr('target', '_blank')
-            .attr('download', adventure.meta.name + '-' + Date.now() + '.json' );
-
-        $(document.body).append(link);
-        link[0].click();
-        //BUG
-        //For reasons I cannot get to the bottom of, this blanks the Mozilla inspector, presumably because it becomes disassociated from the window by "following" the href
-        //The demo here (https://www.w3schools.com/tags/tryit.asp?filename=tryhtml5_a_download) does not
-        //But even directly copying over the example (with adjusted paths) with no jquery interference gives the buggy result
-        //As this is an editor feature likely to be superceded and it still technically works, I'm not gonna chase this down right now
-        link.remove();
-    }
-
-    static enableDragAndDropLoading() {
-         //Based on https://www.html5rocks.com/en/tutorials/file/dndfiles/
-        var dropZone = document;
-        dropZone.addEventListener('dragover', function(e) {
-            e.stopPropagation();
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'copy';
-        }, false);
-        dropZone.addEventListener('drop', function(e) {
-            e.stopPropagation();
-            e.preventDefault();
-            if(!e.dataTransfer.files) return;
-            var file = e.dataTransfer.files[0]
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                IOJinn.loadJSON(this.result);
-            }
-            reader.readAsText(file);
-        }, false);
-    }
-
-
-
-}
 
 
 
 
 
 
-
-const DEBUG = true;
 function debug(object) {
     if (DEBUG) console.log(object);
 }
