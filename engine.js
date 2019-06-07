@@ -575,54 +575,6 @@ class HotspotProperties {
 }
 
 
-/*
-var exportURI = null;
-function exportAdventure() {
-    debug('attempting export');
-    var json = JSON.stringify(adventure, null, 4);
-    var data = new Blob([json], {type : 'application/json'});
-    debug(data);
-    if (exportURI !== null) {
-        window.URL.revokeObjectURL(exportURI);
-    }
-    exportURI = window.URL.createObjectURL(data);
-    //weird but works:  https://stackoverflow.com/questions/21012580/is-it-possible-to-write-data-to-file-using-only-javascript
-    $('#button-export')
-        .attr('href', exportURI)
-        .attr('download', adventure.meta.name + '-' + Date.now() + '.json' );
-}
-*/
-
-
-function enableLoading() {
-    //https://www.html5rocks.com/en/tutorials/file/dndfiles/
-    var dropZone = $('#drop-zone')[0];
-    dropZone = document;
-    dropZone.addEventListener('dragover', function(e) {
-        e.stopPropagation();
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'copy';
-    }, false);
-    dropZone.addEventListener('drop', function(e) {
-        e.stopPropagation();
-        e.preventDefault();
-        if(!e.dataTransfer.files) return;
-        var file = e.dataTransfer.files[0]
-        var reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                var obj = JSON.parse(this.result);
-                console.log(obj);
-                adventure = obj;
-                start();
-            } catch (error) {
-                debug(error);
-            }
-        }
-        reader.readAsText(file);
-    }, false);
-}
-
 
 
 
