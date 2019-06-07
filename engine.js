@@ -119,6 +119,8 @@ class InteractionJinn {
 
     //The InteractionJinn is currently responsible for the 'text' event, so it must also hold the code that makes text fade out.
     //Should the 'text' event grow big enough to merit one, or the convention evolve such, it will be migrated outwards to its own dedicated Jinn
+
+    /*
     static actionText(args) {
         var svg = document.getElementById('overlay_svg');
         var t = document.createElementNS(svg.namespaceURI, 'text');
@@ -130,7 +132,9 @@ class InteractionJinn {
             .attr('x', '1em')
             .attr('y', '1.5em');
         //TODO: functionality to read in attributes like args.class
-    }
+    } */
+
+    /*
     static registerTextFadeAnimationHandler() {
         AnimationJinn.register(function(dt) {
             $('#overlay_svg').find('text').each(function (index, value) {
@@ -145,9 +149,7 @@ class InteractionJinn {
                 }
             });
         })
-
-
-    }
+    }*/
 
     static actionGo(id) {
         AudioJinn.playTracks(adventure.rooms[id].tracks);
