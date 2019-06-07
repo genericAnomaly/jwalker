@@ -66,6 +66,7 @@ function startEditor() {
         //exportAdventure();
         IOJinn.offerDirectDownload();
     })
+    IOJinn.enableDragAndDropLoading();
 
 }
 
@@ -693,38 +694,82 @@ class AudioJinn {
 
 
 class IOJinn {
-    /**
-     * The IOJinn handles saving and loading Adventures and (eventually) adventure states
-     */
+    //The IOJinn handles saving and loading Adventures and (eventually) adventure states
 
-     static getJSON() {
-         //stringify the adventure into JSON and return it.
-         //Only direct reference to global `adventure` in the IOJinn
-         return JSON.stringify(adventure, null, 4);
-     }
+    static getJSON() {
+        //stringify the adventure into JSON and return it.
+        //Get and Load JSON are the only direct references to global `adventure` in the IOJinn
+        return JSON.stringify(adventure, null, 4);
+    }
 
-     static offerDirectDownload() {
-         var json = IOJinn.getJSON();
-         var data = new Blob([json], {type : 'application/json'});
-         if (typeof IOJinn.exportURI !== 'undefined') {
-             window.URL.revokeObjectURL(IOJinn.exportURI);
-         }
-         IOJinn.exportURI = window.URL.createObjectURL(data);
-         var link = $('<a/>')
+    static loadJSON(json) {
+        //TODO: This function contains global references that will likely need cleanup during further despaghettification
+        //Parse a JSON string and load the adventure stored within
+        //Precondition: json is a string in JSON format representing an adventure
+        //Get and Load JSON are the only direct references to global `adventure` in the IOJinn
+        try {
+            var obj = JSON.parse(this.result);
+            adventure = obj;
+            start();
+        } catch (error) {
+            debug(error);
+        }
+    }
+
+    static offerDirectDownload() {
+        var json = IOJinn.getJSON();
+        var data = new Blob([json], {type : 'application/json'});
+        if (typeof IOJinn.exportURI !== 'undefined') {
+            window.URL.revokeObjectURL(IOJinn.exportURI);
+        }
+        IOJinn.exportURI = window.URL.createObjectURL(data);
+        var link = $('<a/>')
             .attr('href', IOJinn.exportURI)
             .attr('target', '_blank')
             .attr('download', adventure.meta.name + '-' + Date.now() + '.json' );
-         debug(IOJinn.exportURI);
+        debug(IOJinn.exportURI);
 
-         $(document.body).append(link);
-         link[0].click();
-         //BUG
-         //For reasons I cannot get to the bottom of, this blanks the Mozilla inspector, presumably because it becomes disassociated from the window by "following" the href
-         //The demo here (https://www.w3schools.com/tags/tryit.asp?filename=tryhtml5_a_download) does not
-         //But even directly copying over the example (with adjusted paths) with no jquery interference gives the buggy result
-         //As this is an editor feature likely to be superceded and it still technically works, I'm not gonna chase this down right now
-         link.remove();
-     }
+        $(document.body).append(link);
+        link[0].click();
+        //BUG
+        //For reasons I cannot get to the bottom of, this blanks the Mozilla inspector, presumably because it becomes disassociated from the window by "following" the href
+        //The demo here (https://www.w3schools.com/tags/tryit.asp?filename=tryhtml5_a_download) does not
+        //But even directly copying over the example (with adjusted paths) with no jquery interference gives the buggy result
+        //As this is an editor feature likely to be superceded and it still technically works, I'm not gonna chase this down right now
+        link.remove();
+    }
+
+    static enableDragAndDropLoading() {
+         //Based on https://www.html5rocks.com/en/tutorials/file/dndfiles/
+        var dropZone = document;
+        dropZone.addEventListener('dragover', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+        }, false);
+        dropZone.addEventListener('drop', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            if(!e.dataTransfer.files) return;
+            var file = e.dataTransfer.files[0]
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                IOJinn.loadJSON(this.result);
+                /*
+                try {
+                    var obj = JSON.parse(this.result);
+                    adventure = obj;
+                    start();
+                } catch (error) {
+                    debug(error);
+                }
+                */
+            }
+            reader.readAsText(file);
+        }, false);
+    }
+
+
 
 }
 
