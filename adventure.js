@@ -70,7 +70,7 @@ var adventure = {
                 'skull'  :   {
                     'area'      :   {'shape' : 'circle', 'coords' : '62,425,27', 'class' : 'action-examine'},
                     'click'     :   {
-                        'text' : {'string'    : 'Smells like wet cat...'}
+                        'text' : {'string'    : 'Smells like wet cat...', 'class' : 'text-jittery text-dripping'}
                     }
                 }
             },

@@ -79,7 +79,7 @@ function startEditor() {
 
 
 
-
+//Core Jinn
 
 class InteractionJinn {
     //Core Jinn: Core Jinn are invoked before peripheral Jinn. Generally, they should not directly act on a peripheral Jinn; rather, peripheral Jinn register their methods with core Jinn when they're first invoked
@@ -89,7 +89,7 @@ class InteractionJinn {
 
     static invoke() {
         InteractionJinn.clickHandlers = {};
-        InteractionJinn.register('sfx',   AudioJinn.playSFX);   //Should this be moved to the AudioJinn's invoke?
+           //Should this be moved to the AudioJinn's invoke?
         InteractionJinn.register('go',    InteractionJinn.actionGo);
     }
 
@@ -117,47 +117,6 @@ class InteractionJinn {
     }
 
 }
-
-class TextJinn {
-    //Lesser Jinn resposible for handling the click.text property
-    //Will likely evolve into a more full-featured "overlay" Jinn as more overlay-related functionality is needed
-
-    static invoke() {
-        InteractionJinn.register('text',  TextJinn.text);
-        AnimationJinn.register(TextJinn.step);
-    }
-
-
-    static step(dt) {
-        $('#overlay_svg').find('text').each(function (index, value) {
-            var t = $(this);
-            var ttl = t.data('ttl') - dt;
-            t.data('ttl', ttl);
-            if (ttl < 1200) {
-                    t.css('opacity', ttl/1200);
-            }
-            if (ttl < 0) {
-                t.remove();
-            }
-        });
-    }
-
-    static text(args) {
-        var svg = document.getElementById('overlay_svg');
-        var t = document.createElementNS(svg.namespaceURI, 'text');
-        svg.appendChild(t);
-
-        t = $(t)
-            .html(args.string)
-            .data('ttl', 5000)
-            .attr('x', '1em')
-            .attr('y', '1.5em');
-        //TODO: functionality to read in attributes like args.class
-    }
-
-}
-
-
 
 class AnimationJinn {
     //The AnimationJinn presides over AnimationFrame events.
@@ -189,6 +148,118 @@ class AnimationJinn {
 
 }
 
+//Peripheral Jinn
+
+class TextJinn {
+    //Lesser Jinn resposible for handling the click.text property
+    //Will likely evolve into a more full-featured "overlay" Jinn as more overlay-related functionality is needed
+
+    static invoke() {
+        InteractionJinn.register('text',  TextJinn.text);
+        AnimationJinn.register(TextJinn.step);
+    }
+
+
+    static step(dt) {
+        $('#overlay_svg').find('text').each(function (index, value) {
+            var t = $(this);
+            var ttl = t.data('ttl') - dt;
+            t.data('ttl', ttl);
+            if (ttl < 1200) {
+                    t.css('opacity', ttl/1200);
+            }
+            if (ttl < 0) {
+                t.remove();
+            }
+        });
+    }
+
+    static text(args) {
+        var svg = document.getElementById('overlay_svg');
+        var t = document.createElementNS(svg.namespaceURI, 'text');
+        svg.appendChild(t);
+
+        var classAttr = '';
+        if ('class' in args) {
+            classAttr = args.class;
+        }
+
+        t = $(t)
+            .html(args.string)
+            .data('ttl', 5000)
+            .attr('x', '1em')
+            .attr('y', '1.5em')
+            .attr('class', classAttr);
+
+
+        //TODO: functionality to read in attributes like args.class
+    }
+
+}
+
+class AudioJinn {
+
+    static invoke () {
+        AudioJinn.sfx = {};
+        AudioJinn.tracks = {};
+
+        AudioJinn.loadSFX(adventure.sfx);
+        AudioJinn.loadTracks(adventure.tracks);
+
+        InteractionJinn.register('sfx',   AudioJinn.playSFX);
+    }
+
+    static loadSFX (sfx) {
+        for (var key in sfx) {
+            AudioJinn.sfx[key] = sfx[key];
+            var a = new Audio();
+            a.src = 'sfx/' + sfx[key].src;
+            AudioJinn.sfx[key].audio = a;
+            //TODO: load-safety, make the AudioJinn aware of whether or not resources are loaded
+        }
+    }
+
+    static loadTracks (tracks) {
+        for (var key in tracks) {
+            AudioJinn.tracks[key] = tracks[key];
+            var a = new Audio();
+            a.src = 'tracks/' + tracks[key].src;
+            a.loop = true;
+            AudioJinn.tracks[key].audio = a;
+        }
+    }
+
+
+    static playSFX (sfx) {
+        if (('key' in sfx) == false) return;
+        var key = sfx.key;
+
+        var volume = 1.0;
+        if ('volume' in sfx) {
+             volume = sfx.volume;
+        }
+
+        if (key in AudioJinn.sfx) {
+            AudioJinn.sfx[key].audio.volume = volume;
+            AudioJinn.sfx[key].audio.play();
+        }
+    }
+
+    static playTracks (tracks) {
+        if (tracks == undefined) tracks = {};
+        for (var key in AudioJinn.tracks) {
+            if (key in tracks) {
+                AudioJinn.tracks[key].audio.play();
+                AudioJinn.tracks[key].audio.volume = tracks[key]; //TODO: targetVolume and easing
+                AudioJinn.tracks[key].audio.loop = true;
+            } else {
+                AudioJinn.tracks[key].audio.volume = 0; //Don't pause it, but we should have a catcher for when a loop ends to pause it if volume is 0
+                AudioJinn.tracks[key].audio.loop = false; //Or maybe just this; just disable looping when a track becomes inaudible
+            }
+        }
+    }
+
+}
 
 
 function buildRoom(id) {
@@ -634,71 +705,7 @@ class HotspotProperties {
 
 
 
-class AudioJinn {
 
-    static invoke () {
-        AudioJinn.sfx = {};
-        AudioJinn.tracks = {};
-
-        AudioJinn.loadSFX(adventure.sfx);
-        AudioJinn.loadTracks(adventure.tracks);
-    }
-
-    static loadSFX (sfx) {
-        for (var key in sfx) {
-            AudioJinn.sfx[key] = sfx[key];
-            var a = new Audio();
-            a.src = 'sfx/' + sfx[key].src;
-            AudioJinn.sfx[key].audio = a;
-            //TODO: load-safety, make the AudioJinn aware of whether or not resources are loaded
-        }
-    }
-
-    static loadTracks (tracks) {
-        for (var key in tracks) {
-            AudioJinn.tracks[key] = tracks[key];
-            var a = new Audio();
-            a.src = 'tracks/' + tracks[key].src;
-            a.loop = true;
-            AudioJinn.tracks[key].audio = a;
-        }
-    }
-
-
-    static playSFX (sfx) {
-        if (('key' in sfx) == false) return;
-        var key = sfx.key;
-
-        var volume = 1.0;
-        if ('volume' in sfx) {
-             volume = sfx.volume;
-        }
-
-        if (key in AudioJinn.sfx) {
-            AudioJinn.sfx[key].audio.volume = volume;
-            AudioJinn.sfx[key].audio.play();
-        }
-    }
-
-
-
-    static playTracks (tracks) {
-        if (tracks == undefined) tracks = {};
-        for (var key in AudioJinn.tracks) {
-            if (key in tracks) {
-                AudioJinn.tracks[key].audio.play();
-                AudioJinn.tracks[key].audio.volume = tracks[key]; //TODO: targetVolume and easing
-                AudioJinn.tracks[key].audio.loop = true;
-            } else {
-                AudioJinn.tracks[key].audio.volume = 0; //Don't pause it, but we should have a catcher for when a loop ends to pause it if volume is 0
-                AudioJinn.tracks[key].audio.loop = false; //Or maybe just this; just disable looping when a track becomes inaudible
-            }
-        }
-    }
-
-
-
-}
 
 
 class IOJinn {
