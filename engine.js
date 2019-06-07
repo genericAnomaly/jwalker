@@ -12,7 +12,9 @@ function start() {
     AnimationJinn.invoke();
 
     //Register animationHandlers now that the AnimationJinn is invoked
-    InteractionJinn.registerTextFadeAnimationHandler(); //I think yeah, all possible actions should have their own Jinn that registers with the core Jinn like Interaction and Animation after they've been invoked
+    //InteractionJinn.registerTextFadeAnimationHandler(); //I think yeah, all possible actions should have their own Jinn that registers with the core Jinn like Interaction and Animation after they've been invoked
+
+    TextJinn.invoke();
 
     //Activate audio
     AudioJinn.invoke();
@@ -96,7 +98,7 @@ class InteractionJinn {
         InteractionJinn.clickHandlers = {};
         InteractionJinn.register('sfx',   AudioJinn.playSFX);   //Should this be moved to the AudioJinn's invoke?
         InteractionJinn.register('go',    InteractionJinn.actionGo);
-        InteractionJinn.register('text',  InteractionJinn.actionText);
+        //InteractionJinn.register('text',  InteractionJinn.actionText);
     }
 
     static register(key, func) {
@@ -155,6 +157,44 @@ class InteractionJinn {
     }
 
 }
+
+class TextJinn {
+
+    static invoke() {
+        InteractionJinn.register('text',  TextJinn.text);
+        AnimationJinn.register(TextJinn.step);
+    }
+
+
+    static step(dt) {
+        $('#overlay_svg').find('text').each(function (index, value) {
+            var t = $(this);
+            var ttl = t.data('ttl') - dt;
+            t.data('ttl', ttl);
+            if (ttl < 1200) {
+                    t.css('opacity', ttl/1200);
+            }
+            if (ttl < 0) {
+                t.remove();
+            }
+        });
+    }
+
+    static text(args) {
+        var svg = document.getElementById('overlay_svg');
+        var t = document.createElementNS(svg.namespaceURI, 'text');
+        svg.appendChild(t);
+
+        t = $(t)
+            .html(args.string)
+            .data('ttl', 5000)
+            .attr('x', '1em')
+            .attr('y', '1.5em');
+        //TODO: functionality to read in attributes like args.class
+    }
+
+}
+
 
 
 class AnimationJinn {
