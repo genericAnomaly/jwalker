@@ -82,7 +82,7 @@ function startEditor() {
 
 
 class InteractionJinn {
-    //Handles user interactions. Subject to revision.
+    //Core Jinn: Core Jinn are invoked before peripheral Jinn. Generally, they should not directly act on a peripheral Jinn; rather, peripheral Jinn register their methods with core Jinn when they're first invoked
     //The primary function of this Jinn is to handle user input/interactions, and dispatch it to the correct Jinn
 
     //Currently holding functionality for click.go, to be migrated out later.
