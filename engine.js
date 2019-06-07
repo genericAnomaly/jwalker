@@ -106,7 +106,7 @@ function text(args) {
 }
 
 //Event handlers
-function clickHandler(e) {
+/*function clickHandler(e) {
     var click = e.data;
     if ('go' in click) {
         go(click.go);
@@ -117,7 +117,7 @@ function clickHandler(e) {
     if ('sfx' in click) {
         AudioJinn.playSFX(click.sfx);
     }
-}
+}*/
 function onAnimationFrameHandler(ts) {
     //OH THE MEMORIIIIIIES
     if (!time) time = ts;
@@ -141,9 +141,11 @@ function onAnimationFrameHandler(ts) {
 
 
 class InteractionJinn {
-    //Handles interactions.
-    //Should be aware of all possible properties of a Click object
-    //Replaces clickHandler, and will hold all functionality triggered by click events that don't already have their own dedicated Jinn
+    //Handles user interactions. Subject to revision.
+    //This Jinn's invoke method touches many other Jinn without a formalised interface, be advised of rippling potential
+    //The primary function of this Jinn is to handle user input/interactions, and dispatch it to the correct Jinn
+    //Replaces window.clickHandler
+    //During despaghettification, this will hold all functionality triggered by click events that don't already have their own dedicated Jinn. Long term this will likely change
 
     static invoke() {
         InteractionJinn.clickHandlers = {};
@@ -223,7 +225,6 @@ function buildRoom(id) {
             .attr('class', hotspot.area.class)
             .attr('tabindex', -1);
         if ('click' in hotspot) {
-            //area.click(hotspot.click, clickHandler);
             area.click(hotspot.click, InteractionJinn.clickHandler);
         }
         map.append(area);
