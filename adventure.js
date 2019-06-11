@@ -21,7 +21,15 @@ var adventure = {
                 },
                 'horse'      :   {
                     'area'      :   {'shape' : 'circle', 'coords' : '273,287,47', 'class' : 'action-examine'},
-                    'click'     :   {'sfx' :  {'key' : 'horse', 'volume' : 0.05} }
+                    'click'     :   {
+                        'sequence'  :   {
+                            'clicks'    :   [
+                                {'sfx'  : {'key' : 'horse', 'volume' : 0.05}        },
+                                {'text' : {'string'    : 'The fun never stops.'}    }
+                            ],
+                            'repeat'    :   true
+                        }
+                    }
                 }
             },
             'tracks'    : {

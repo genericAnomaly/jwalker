@@ -14,6 +14,7 @@ function start() {
     OverlayJinn.invoke();
     AudioJinn.invoke();
     RoomJinn.invoke();
+    LogicJinn.invoke();
 
     //Go to the first room of the Adventure
     InteractionJinn.clickHandler( {'data' : {'go' : adventure.meta.start} } );
@@ -30,8 +31,6 @@ function start() {
 class InteractionJinn {
     //Core Jinn: Core Jinn are invoked before peripheral Jinn. Generally, they should not directly act on a peripheral Jinn; rather, peripheral Jinn register their methods with core Jinn when they're first invoked
     //The primary function of this Jinn is to handle user input/interactions, and dispatch it to the correct Jinn
-
-    //Currently holding functionality for click.go, to be migrated out later.
 
     static invoke() {
         InteractionJinn.clickHandlers = {};
@@ -53,12 +52,13 @@ class InteractionJinn {
         }
     }
 
+    /*
     static actionGo(id) {
         AudioJinn.playTracks(adventure.rooms[id].tracks);
         var div = buildRoom(id);
         $('#room').empty().append(div);
         if (editorMode) editorLoadRoom(id);//adventure.rooms[id]);
-    }
+    } */
 
 }
 
@@ -314,6 +314,31 @@ class IOJinn {
 
 }
 
+class LogicJinn {
+    //The LogicJinn handles the flow of conditions and loops described in the adventure
+    //It provides the click.sequence property
+
+    static invoke() {
+        InteractionJinn.register('sequence', LogicJinn.sequence);
+    }
+
+    static sequence(args) {
+        //if the index counter hasn't been initialised yet, initialise it.
+        if (('i' in args) == false) args.i = 0;
+
+        if (args.i < args.clicks.length) {
+            var click = args.clicks[args.i];
+            args.i ++;  //it is so wild to me that this works
+            //Forward the selected click to the InteractionJinn
+            InteractionJinn.clickHandler( {'data' : click} );
+        }
+        if (args.i >= args.clicks.length && 'repeat' in args) {
+            if (args.repeat == true) args.i = 0;
+        }
+
+    }
+
+}
 
 
 //Editor stuff pending being incorporated into a class
