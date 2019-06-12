@@ -316,7 +316,7 @@ class IOJinn {
 
 class LogicJinn {
     //The LogicJinn handles the flow of conditions and loops described in the adventure
-    //It provides the click.sequence property
+    //It provides the click.sequence and click.variable property
 
     static invoke() {
         InteractionJinn.register('sequence', LogicJinn.sequence);
@@ -841,8 +841,14 @@ class HotspotProperties {
 
 function warn(string, object) {
     //Editor mode function (destined for eventual editor jinn) used to warn the Adventure Author of non-fatal issues that appear to originate within the Adventure object
-    console.log("WARNING: " + string);
-    if (object !== undefined) console.log(object);
+    //Will output a console warning ONLY if debug mode is enabled
+    if (DEBUG) {
+        if (object !== undefined) {
+            console.warn(string, object);
+        } else {
+            console.warn(string);
+        }
+    }
 }
 
 function debug(object) {
