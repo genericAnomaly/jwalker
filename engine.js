@@ -320,6 +320,7 @@ class LogicJinn {
 
     static invoke() {
         InteractionJinn.register('sequence', LogicJinn.sequence);
+        InteractionJinn.register('variable', LogicJinn.variable);
     }
 
     static sequence(args) {
@@ -336,6 +337,34 @@ class LogicJinn {
             if (args.repeat == true) args.i = 0;
         }
 
+    }
+
+    static variable(args) {
+        /*
+        TODO: better/more descriptive names here
+        args = {
+            'name'          :   'name of variable to store the result of "expression" to',
+            'expression'    :   'the expression to evaluate. variables referenced with $varname'
+        };*/
+        //Inject referenced values from adventure variable table
+        var pattern = /\$(\w+)/;
+        var expression = args.expression;
+        expression = expression.replace(pattern, function (match, varname) {
+            if (varname in adventure.variables) return adventure.variables[varname];
+            return;
+        });
+        //Evaluate it
+        debug(expression);
+        var result = LogicJinn.evaluateExpression(expression);
+        debug(result);
+        adventure.variables[args.name] = result;
+    }
+    //Maybe switches and counters would be easier to start w/? nah, let's give access directly to eval. no way that can go wrong.
+
+    static evaluateExpression(expression) {
+        //TODO: This should validate and parse out the math with regex and recursion.
+        //For now, we're gonna use eval; rationale: there is not yet a use case where the json provider couldn't already tamper with the js.
+        return eval(expression);
     }
 
 }

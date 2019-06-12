@@ -19,7 +19,16 @@ var adventure = {
                     'area'      :   {'shape' : 'rect', 'coords' : '577,187,695,434', 'class' : 'arrow-n'},
                     'click'     :   {'go' : 'outside'}
                 },
-                'horse'      :   {
+                'light'     :   {
+                    'area'      :   {'shape' : 'circle', 'coords' : '720,90,35', 'class' : 'action-examine'},
+                    'click'     :   {
+                        'variable'  :   {
+                            'name'          :   'foo',
+                            'expression'    :   '$foo + 1'
+                        }
+                    }
+                },
+                'horse'     :   {
                     'area'      :   {'shape' : 'circle', 'coords' : '273,287,47', 'class' : 'action-examine'},
                     'click'     :   {
                         'sequence'  :   {
@@ -104,6 +113,8 @@ var adventure = {
     },
     'variables'     : {
         /*Reserved for further development, if the adventure needs to be able to store and check information about its state*/
+        'foo'   :   0,
+        'bar'   :   false
     }
 };
 
