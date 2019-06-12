@@ -340,18 +340,13 @@ class LogicJinn {
     }
 
     static variable(args) {
-        /*
-        TODO: better/more descriptive names here
-        args = {
-            'name'          :   'name of variable to store the result of "expression" to',
-            'expression'    :   'the expression to evaluate. variables referenced with $varname'
-        };*/
+        //TODO: consider implementing better/more descriptive argument names before pulling branch to master
         //Inject referenced values from adventure variable table
-        var pattern = /\$(\w+)/g;
+        var pattern = /\$(\w+)/g;   //Pattern to find words prefixed by $
         var expression = args.expression;
         expression = expression.replace(pattern, function (match, varname) {
-            debug('found a match: ' + match);
             if (varname in adventure.variables) return adventure.variables[varname];
+            warn('Attempting to evaluate undeclared variable ' + match + '; using 0', args);
             return 0;
         });
         //Evaluate it
@@ -844,7 +839,11 @@ class HotspotProperties {
 
 
 
-
+function warn(string, object) {
+    //Editor mode function (destined for eventual editor jinn) used to warn the Adventure Author of non-fatal issues that appear to originate within the Adventure object
+    console.log("WARNING: " + string);
+    if (object !== undefined) console.log(object);
+}
 
 function debug(object) {
     if (DEBUG) console.log(object);
