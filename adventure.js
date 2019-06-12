@@ -24,7 +24,7 @@ var adventure = {
                     'click'     :   {
                         'variable'  :   {
                             'name'          :   'foo',
-                            'expression'    :   '$foo + 1'
+                            'expression'    :   '$foo + 1 + $baz + $bar'
                         }
                     }
                 },

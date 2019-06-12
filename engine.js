@@ -347,11 +347,12 @@ class LogicJinn {
             'expression'    :   'the expression to evaluate. variables referenced with $varname'
         };*/
         //Inject referenced values from adventure variable table
-        var pattern = /\$(\w+)/;
+        var pattern = /\$(\w+)/g;
         var expression = args.expression;
         expression = expression.replace(pattern, function (match, varname) {
+            debug('found a match: ' + match);
             if (varname in adventure.variables) return adventure.variables[varname];
-            return;
+            return 0;
         });
         //Evaluate it
         debug(expression);
@@ -359,7 +360,9 @@ class LogicJinn {
         debug(result);
         adventure.variables[args.name] = result;
     }
-    //Maybe switches and counters would be easier to start w/? nah, let's give access directly to eval. no way that can go wrong.
+
+
+
 
     static evaluateExpression(expression) {
         //TODO: This should validate and parse out the math with regex and recursion.
