@@ -22,9 +22,9 @@ var adventure = {
                 'light'     :   {
                     'area'      :   {'shape' : 'circle', 'coords' : '720,90,35', 'class' : 'action-examine'},
                     'click'     :   {
-                        'variable'  :   {
-                            'name'          :   'foo',
-                            'expression'    :   '$foo + 1 + $baz + $bar'
+                        'set'   :   {
+                            'variable'  :   'foo',
+                            'value'     :   '$foo + 1'
                         }
                     }
                 },

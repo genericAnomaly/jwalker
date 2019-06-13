@@ -320,7 +320,7 @@ class LogicJinn {
 
     static invoke() {
         InteractionJinn.register('sequence', LogicJinn.sequence);
-        InteractionJinn.register('variable', LogicJinn.variable);
+        InteractionJinn.register('set', LogicJinn.set);
     }
 
     static sequence(args) {
@@ -339,11 +339,10 @@ class LogicJinn {
 
     }
 
-    static variable(args) {
-        //TODO: consider implementing better/more descriptive argument names before pulling branch to master
+    static set(args) {
         //Inject referenced values from adventure variable table
         var pattern = /\$(\w+)/g;   //Pattern to find words prefixed by $
-        var expression = args.expression;
+        var expression = args.value;
         expression = expression.replace(pattern, function (match, varname) {
             if (varname in adventure.variables) return adventure.variables[varname];
             warn('Attempting to evaluate undeclared variable ' + match + '; using 0', args);
@@ -353,7 +352,7 @@ class LogicJinn {
         debug(expression);
         var result = LogicJinn.evaluateExpression(expression);
         debug(result);
-        adventure.variables[args.name] = result;
+        adventure.variables[args.variable] = result;
     }
 
 
