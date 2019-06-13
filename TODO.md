@@ -2,6 +2,7 @@
 
 ## High Priority
 * ~~``click.sequence`` property.~~
+* AJAX based save/load and a rudimentary AMP servelet for it.
 * Implement and standardise interaction with the static "adventure" variable
 * Function to preload all resources before starting the game.
 * Finish cleaning up the loose spaghetti
@@ -15,28 +16,36 @@
 	* ~~Define 'sequence' objects to chain multiple click objects together with rules for repetition~~
 * Sounds
 	* Framework for single-occurrence events
-		* **See plans for ``click.sequence`` property in clicks.md.**
-		* one-shot sfx when you click on something? like, imagining a dull thud when you touch the Orb in the den
+		* ~~**See plans for ``click.sequence`` property in clicks.md.**~~
+		* ~~one-shot sfx when you click on something? like, imagining a dull thud when you touch the Orb in the den~~
 		* sounds that trigger the first time you enter the room but not ever again (thinking here, voiceover work?)
+			* Likely will take the form of an ``action`` property that may be attached to a room, something like room.``onEnter``, ``onExit``, hosting a repeat-once ``sequence``.
 	* Define transformations and apply them to soundscape tracks
 	* does "clicking sfx every time you click on something" mean a global, universal click sfx?
 * Coding practices
 	* Define resource paths in meta for stuff like demo/img
 	* Resource preloading
-	* ~~Clean up **all** the spaghetti in the window, incorporate it into appropriate classes.~~
 	* Finish despaghettification:
 		* Pack editor high-level functionality into a class
 		* Need a high-level class for pseudo-globals currently living in ``window``, namely ``var adventure`` and ``function start()``
+	* LogicJinn.evaluateExpression needs a safe implementation for mathematical evaluation
+	* Add room exists check to ``go``, make sure all Jinn provided functions are checking their arguments and returning useful warn/error messages
 * README.md could use some words.
-* Add room exists check to ``go``, make sure all Jinn provided functions are checking their arguments and returning useful warn/error messages
+* AJAX based save/load and a rudimentary AMP servelet for it.
+	* JSONP seems the most accepted way to do this but the *inelegance*
+	* ``Access-Control-Allow-Origin`` headers described [here](https://stackoverflow.com/questions/3506208/jquery-ajax-cross-domain) look promising...
+	* Also this is maybe what node.js is for? Or electron?
 
 ## Reevaluate
 * a dedicated back button that sends you back to the previous place you were, since it turns out it's hard to find pictures with at least one entrance and exit in-photo
 	* per-room option to override back button with a custom click object.
+	* Maybe stick it in a toggleable BacktrackerJinn since this is not standard behavior for the genre
+		* BacktrackerJinn should also provide an Action so any hotspot can trigger it
 * Preload adjacent rooms, possibly even keep them in the DOM to avoid the "blink" between rooms
 
 
 ## Authoring tools (on hold)
+* IOJinn should add support for AJAX based save/load.
 * Make sidebars toggleable
 * "Room properties" sidebar **in progress**
 	* edit key/id, ~~img~~, add and configure hotspots
@@ -60,7 +69,6 @@
 * ~~HUD text pop-up event~~, or just a hovering image in general.
 * ~~customizable pointers~~
 * ~~PROPER class-based customizable pointers~~
-	* *I sketched some hella sweet retro cursors for this for now*
 * ~~prevent players from using the tab functionality to find hotspots~~
 * ~~Use jQuery binds instead of href="javascript:function(args)"~~
 * Editor mode
@@ -75,3 +83,4 @@
 	* ~~ability to play multiple tracks (ie, music and bird sfx) at the same time~~
 	* ~~can change music when you enter a new room or keep it running without starting over~~
 	* ~~sfx on click~~
+* ~~Clean up most of the spaghetti in the window, incorporate it into appropriate classes.~~
