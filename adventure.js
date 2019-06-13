@@ -29,7 +29,7 @@ var adventure = {
                     }
                 },
                 'horse'     :   {
-                    'area'      :   {'shape' : 'circle', 'coords' : '273,287,47', 'class' : 'action-examine'},
+                    'area'      :   {'shape' : 'circle', 'coords' : '273,287,47', 'class' : 'action-hand'},
                     'click'     :   {
                         'sequence'  :   {
                             'actions'    :   [
