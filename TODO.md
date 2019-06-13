@@ -11,8 +11,8 @@
 
 ## Todo
 * Features
-	* Define and use variables and logic when defining adventure
-	* Define 'sequence' objects to chain multiple click objects together with rules for repetition
+	* ~~Define and use variables and logic when defining adventure~~
+	* ~~Define 'sequence' objects to chain multiple click objects together with rules for repetition~~
 * Sounds
 	* Framework for single-occurrence events
 		* **See plans for ``click.sequence`` property in clicks.md.**
@@ -28,7 +28,7 @@
 		* Pack editor high-level functionality into a class
 		* Need a high-level class for pseudo-globals currently living in ``window``, namely ``var adventure`` and ``function start()``
 * README.md could use some words.
-
+* Add room exists check to ``go``, make sure all Jinn provided functions are checking their arguments and returning useful warn/error messages
 
 ## Reevaluate
 * a dedicated back button that sends you back to the previous place you were, since it turns out it's hard to find pictures with at least one entrance and exit in-photo

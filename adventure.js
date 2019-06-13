@@ -33,6 +33,20 @@ var adventure = {
                     'click'     :   {
                         'sequence'  :   {
                             'actions'    :   [
+                                {
+                                    'set'  : {'variable' : 'bar', 'value' : true},
+                                    'text' : {'string'    : '*CLICK*'}
+                                }
+                            ],
+                            'repeat'    :   false
+                        }
+                    }
+                },
+                'painting'  :   {
+                    'area'      :   {'shape' : 'poly', 'coords' : '100,260,205,259,205,100,100,65', 'class' : 'action-examine'},
+                    'click'     :   {
+                        'sequence'  :   {
+                            'actions'    :   [
                                 {'sfx'  : {'key' : 'horse', 'volume' : 0.05}        },
                                 {'text' : {'string'    : 'The fun never stops.'}    }
                             ],
@@ -66,7 +80,23 @@ var adventure = {
                 },
                 'door-n'  :   {
                 	'area'      :   {'shape' : 'rect', 'coords' : '376,216,458,408', 'class' : 'arrow-n'},
-                	'click'     :   {'go' : 'outside'}
+                	'click'     :   {
+                        'condition' : {
+                            "if"    :   "($bar == true)",
+                            "then"  :   {
+                                'go'    :   "horseroom"
+                            },
+                            "else"  :   {
+                                "text"  :   {
+                                    "string"    :   "...locked."
+                                },
+                                "sfx"   :   {
+                                    "key"       :   "locked",
+                                    "volume"    :   0.5
+                                }
+                            }
+                        }
+                    }
                 },
                 'backwards'  :   {
                 	'area'      :   {'shape' : 'rect', 'coords' : '0,550,488,600', 'class' : 'arrow-s'},
@@ -102,6 +132,18 @@ var adventure = {
                     'area'      :   {'shape' : 'rect', 'coords' : '300,170,350,330', 'class' : 'arrow-n'},
                     'click'     :   {'go' : 'foyer'}
                 }
+            }
+        },
+        'horseroom' :   {
+            'img'   :   'attic.png',
+            'map'   :   {
+                'back'  :   {
+                    'area'      :   {'shape' : 'rect', 'coords' : '0, 550, 800, 600', 'class' : 'arrow-s'},
+                    'click'     :   {'go' : 'upstairs'}
+                }
+            },
+            'tracks'    : {
+                'radio' :   0.05
             }
         }
     },

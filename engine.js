@@ -321,6 +321,7 @@ class LogicJinn {
     static invoke() {
         InteractionJinn.register('sequence', LogicJinn.sequence);
         InteractionJinn.register('set', LogicJinn.set);
+        InteractionJinn.register('condition', LogicJinn.condition);
     }
 
     static sequence(args) {
@@ -328,10 +329,10 @@ class LogicJinn {
         if (('i' in args) == false) args.i = 0;
 
         if (args.i < args.actions.length) {
-            var click = args.actions[args.i];
+            var action = args.actions[args.i];
             args.i ++;  //it is so wild to me that this works
             //Forward the selected click to the InteractionJinn
-            InteractionJinn.clickHandler( {'data' : click} );
+            InteractionJinn.clickHandler( {'data' : action} );
         }
         if (args.i >= args.actions.length && 'repeat' in args) {
             if (args.repeat == true) args.i = 0;
@@ -340,25 +341,38 @@ class LogicJinn {
     }
 
     static set(args) {
-        //Inject referenced values from adventure variable table
-        var pattern = /\$(\w+)/g;   //Pattern to find words prefixed by $
-        var expression = args.value;
-        expression = expression.replace(pattern, function (match, varname) {
-            if (varname in adventure.variables) return adventure.variables[varname];
-            warn('Attempting to evaluate undeclared variable ' + match + '; using 0', args);
-            return 0;
-        });
-        //Evaluate it
-        debug(expression);
-        var result = LogicJinn.evaluateExpression(expression);
+        var result = LogicJinn.evaluateExpression(args.value);
         debug(result);
         adventure.variables[args.variable] = result;
+    }
+
+    static condition(args) {
+        //Perform conditional logic
+        var satisfied = LogicJinn.evaluateExpression(args.if);
+        if (satisfied) {
+            var action = args.then;
+        } else {
+            var action = args.else;
+        }
+        InteractionJinn.clickHandler( {'data' : action} );
     }
 
 
 
 
     static evaluateExpression(expression) {
+
+        //If the expression is already a primitive, skip this and just return it
+        if (typeof expression !== 'string') return expression;
+
+        //Inject referenced values from adventure variable table
+        var pattern = /\$(\w+)/g;   //Pattern to find words prefixed by $
+        expression = expression.replace(pattern, function (match, varname) {
+            if (varname in adventure.variables) return adventure.variables[varname];
+            warn('Attempting to evaluate undeclared variable ' + match + '; using 0', args);
+            return 0;
+        });
+
         //TODO: This should validate and parse out the math with regex and recursion.
         //For now, we're gonna use eval; rationale: there is not yet a use case where the json provider couldn't already tamper with the js.
         return eval(expression);
@@ -759,7 +773,7 @@ class Hotspot extends DisplayElement {
                 var vert = [this.verts[i].x, this.verts[i].y].join(',');
                 coords.push(vert);
             }
-            coords.join(',');
+            coords = coords.join(',');
         }
         return {'shape' : shape, 'coords' : coords};
     }
