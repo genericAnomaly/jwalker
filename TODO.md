@@ -1,7 +1,7 @@
 # TODO and Feature Wishlist
 
 ## High Priority
-* ``click.sequence`` property.
+* ~~``click.sequence`` property.~~
 * Implement and standardise interaction with the static "adventure" variable
 * Function to preload all resources before starting the game.
 * Finish cleaning up the loose spaghetti

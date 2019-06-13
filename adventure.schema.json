@@ -8,11 +8,11 @@
             "required"      :   [],
             "properties"    :   {
                 "go"    :   {
-                    "description"   :   "This click will trigger a room transition to the room with an ID/key matching the provided string",
+                    "description"   :   "Trigger a room transition to the room with an ID/key matching the provided string",
                     "type"          :   "string"
                 },
                 "sfx"   :   {
-                    "description"   :   "This click will trigger the sound manager to play an SFX track",
+                    "description"   :   "Trigger the sound manager to play an SFX track",
                     "type"          :   "object",
                     "required"      :   ["key"],
                     "properties"    :   {
@@ -29,7 +29,7 @@
                     }
                 },
                 "text"  :   {
-                    "description"   :   "This click will display text as defined herein",
+                    "description"   :   "Display text as defined herein",
                     "type"          :   "object",
                     "required"      :   ["string"],
                     "properties"    :   {
