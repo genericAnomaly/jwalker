@@ -1,6 +1,82 @@
 {
     "$schema"       :   "http://json-schema.org/draft-07/schema#",
     "$id"           :   "https://raw.githubusercontent.com/genericAnomaly/jwalker/soundscape-foundation/adventure.schema.json",
+    "definitions"   :   {
+        "action" :   {
+            "description"   :   "Defines action(s) to take when this hotspot is clicked",
+            "type"          :   "object",
+            "required"      :   [],
+            "properties"    :   {
+                "go"    :   {
+                    "description"   :   "This click will trigger a room transition to the room with an ID/key matching the provided string",
+                    "type"          :   "string"
+                },
+                "sfx"   :   {
+                    "description"   :   "This click will trigger the sound manager to play an SFX track",
+                    "type"          :   "object",
+                    "required"      :   ["key"],
+                    "properties"    :   {
+                        "key"       :   {
+                            "description"   :   "The key of the SFX track to play",
+                            "type"          :   "string"
+                        },
+                        "volume"    :   {
+                            "description"   :   "The volume to play the track at as a float between 0.0 and 1.0",
+                            "type"          :   "number",
+                            "minimum"       :   0.0,
+                            "maximum"       :   1.0
+                        }
+                    }
+                },
+                "text"  :   {
+                    "description"   :   "This click will display text as defined herein",
+                    "type"          :   "object",
+                    "required"      :   ["string"],
+                    "properties"    :   {
+                        "string"    :   {
+                            "description"   :   "String to be displayed",
+                            "type"          :   "string"
+                        },
+                        "class"     :   {
+                            "description"   :   "CSS class to apply to the text element",
+                            "type"          :   "string"
+                        }
+                    }
+                },
+                "sequence"  :   {
+                    "description"   :   "Defines an array of sub-actions; these sub-actions are executed one-at-a-time in sequence, one sub-action each time the parent action is triggered.",
+                    "type"          :   "object",
+                    "required"      :   ["actions"],
+                    "properties"    :   {
+                        "actions"   :   {
+                            "description"   :   "The array of sub-actions in this sequence.",
+                            "type"          :   "array",
+                            "items"         :   { "$ref"    :   "#/definitions/action" }
+                        },
+                        "repeat"    :   {
+                            "description"   :   "If set to true, this sequence will repeat indefinitely.",
+                            "type"          :   "boolean"
+                        }
+                    }
+                },
+                "set"   :   {
+                    "description"   :   "Assign a value to a global adventure variable that may be referenced in conditional logic.",
+                    "type"          :   "object",
+                    "required"      :   ["variable", "value"],
+                    "properties"    :   {
+                        "variable"  :   {
+                            "description"   :   "The name of the variable to store the value to. Variable names may contain upper and lowercase letters, numbers, and underscores, and are case sensitive.",
+                            "type"          :   "string"
+                        },
+                        "value"  :   {
+                            "description"   :   "The value to assign to the variable. This may be a mathematical expression, and may reference global adventure variables (including the one being assigned) by prefixing the variable's name with a $ character.",
+                            "type"          :   "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
     "title"         :   "JWalker Adventure",
     "description"   :   "Defines a JWalker adventure",
     "type"          :   "object",
@@ -86,49 +162,7 @@
                                                 }
                                             }
                                         },
-                                        "click" :   {
-                                            "description"   :   "Defines action(s) to take when this hotspot is clicked",
-                                            "type"          :   "object",
-                                            "required"      :   [],
-                                            "properties"    :   {
-                                                "go"    :   {
-                                                    "description"   :   "This click will trigger a room transition to the room with an ID/key matching the provided string",
-                                                    "type"          :   "string"
-                                                },
-                                                "sfx"   :   {
-                                                    "description"   :   "This click will trigger the sound manager to play an SFX track",
-                                                    "type"          :   "object",
-                                                    "required"      :   ["key"],
-                                                    "properties"    :   {
-                                                        "key"       :   {
-                                                            "description"   :   "The key of the SFX track to play",
-                                                            "type"          :   "string"
-                                                        },
-                                                        "volume"    :   {
-                                                            "description"   :   "The volume to play the track at as a float between 0.0 and 1.0",
-                                                            "type"          :   "number",
-                                                            "minimum"       :   0.0,
-                                                            "maximum"       :   1.0
-                                                        }
-                                                    }
-                                                },
-                                                "text"  :   {
-                                                    "description"   :   "This click will display text as defined herein",
-                                                    "type"          :   "object",
-                                                    "required"      :   ["string"],
-                                                    "properties"    :   {
-                                                        "string"    :   {
-                                                            "description"   :   "String to be displayed",
-                                                            "type"          :   "string"
-                                                        },
-                                                        "class"     :   {
-                                                            "description"   :   "CSS class to apply to the text element",
-                                                            "type"          :   "string"
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
+                                        "click" :   { "$ref"    :   "#/definitions/action" }
                                     }
                                 }
                             }

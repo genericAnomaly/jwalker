@@ -32,7 +32,7 @@ var adventure = {
                     'area'      :   {'shape' : 'circle', 'coords' : '273,287,47', 'class' : 'action-examine'},
                     'click'     :   {
                         'sequence'  :   {
-                            'clicks'    :   [
+                            'actions'    :   [
                                 {'sfx'  : {'key' : 'horse', 'volume' : 0.05}        },
                                 {'text' : {'string'    : 'The fun never stops.'}    }
                             ],

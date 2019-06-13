@@ -327,13 +327,13 @@ class LogicJinn {
         //if the index counter hasn't been initialised yet, initialise it.
         if (('i' in args) == false) args.i = 0;
 
-        if (args.i < args.clicks.length) {
-            var click = args.clicks[args.i];
+        if (args.i < args.actions.length) {
+            var click = args.actions[args.i];
             args.i ++;  //it is so wild to me that this works
             //Forward the selected click to the InteractionJinn
             InteractionJinn.clickHandler( {'data' : click} );
         }
-        if (args.i >= args.clicks.length && 'repeat' in args) {
+        if (args.i >= args.actions.length && 'repeat' in args) {
             if (args.repeat == true) args.i = 0;
         }
 
