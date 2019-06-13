@@ -335,7 +335,8 @@ class LogicJinn {
             InteractionJinn.clickHandler( {'data' : action} );
         }
         if (args.i >= args.actions.length && 'repeat' in args) {
-            if (args.repeat == true) args.i = 0;
+            if (args.repeat == "forever") args.i = 0;
+            if (args.repeat == "last") args.i = args.actions.length-1;
         }
 
     }

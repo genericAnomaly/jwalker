@@ -36,9 +36,12 @@ var adventure = {
                                 {
                                     'set'  : {'variable' : 'bar', 'value' : true},
                                     'text' : {'string'    : '*CLICK*'}
+                                },
+                                {
+                                    'text' : {'string'    : 'It won\'t barge...'}
                                 }
                             ],
-                            'repeat'    :   false
+                            'repeat'    :   "last"
                         }
                     }
                 },
@@ -50,7 +53,7 @@ var adventure = {
                                 {'sfx'  : {'key' : 'horse', 'volume' : 0.05}        },
                                 {'text' : {'string'    : 'The fun never stops.'}    }
                             ],
-                            'repeat'    :   true
+                            'repeat'    :   "forever"
                         }
                     }
                 }

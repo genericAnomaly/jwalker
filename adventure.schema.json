@@ -54,8 +54,9 @@
                             "items"         :   { "$ref"    :   "#/definitions/action" }
                         },
                         "repeat"    :   {
-                            "description"   :   "If set to true, this sequence will repeat indefinitely.",
-                            "type"          :   "boolean"
+                            "description"   :   "The repetition behavior of this sequence. Defaults to once.",
+                            "type"          :   "string",
+                            "enum"          :   ["once", "forever", "last"]
                         }
                     }
                 },
