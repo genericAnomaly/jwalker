@@ -41,7 +41,7 @@ var adventure = {
                                     'text' : {'string'    : 'It won\'t barge...'}
                                 }
                             ],
-                            'repeat'    :   "last"
+                            'repeat'    :   'last'
                         }
                     }
                 },
@@ -53,7 +53,7 @@ var adventure = {
                                 {'sfx'  : {'key' : 'horse', 'volume' : 0.05}        },
                                 {'text' : {'string'    : 'The fun never stops.'}    }
                             ],
-                            'repeat'    :   "forever"
+                            'repeat'    :   'forever'
                         }
                     }
                 }
@@ -85,17 +85,17 @@ var adventure = {
                 	'area'      :   {'shape' : 'rect', 'coords' : '376,216,458,408', 'class' : 'arrow-n'},
                 	'click'     :   {
                         'condition' : {
-                            "if"    :   "($bar == true)",
-                            "then"  :   {
-                                'go'    :   "horseroom"
+                            'if'    :   '($bar == true)',
+                            'then'  :   {
+                                'go'    :   'bathroom'
                             },
-                            "else"  :   {
-                                "text"  :   {
-                                    "string"    :   "...locked."
+                            'else'  :   {
+                                'text'  :   {
+                                    'string'    :   '...locked.'
                                 },
-                                "sfx"   :   {
-                                    "key"       :   "locked",
-                                    "volume"    :   0.5
+                                'sfx'   :   {
+                                    'key'       :   'locked',
+                                    'volume'    :   1
                                 }
                             }
                         }
@@ -137,12 +137,32 @@ var adventure = {
                 }
             }
         },
-        'horseroom' :   {
-            'img'   :   'attic.png',
+        'bathroom' :   {
+            'img'   :   'bathroom.png',
             'map'   :   {
                 'back'  :   {
                     'area'      :   {'shape' : 'rect', 'coords' : '0, 550, 800, 600', 'class' : 'arrow-s'},
                     'click'     :   {'go' : 'upstairs'}
+                },
+                'door'  :   {
+                    'area'      :   {'shape' : 'poly', 'coords' : '638,21,694,0,780,0,721,539,612,473', 'class' : 'arrow-e'},
+                    'click'     :   {
+                        'text'  :   {
+                            'string'    :   '...locked.'
+                        },
+                        'sfx'   :   {
+                            'key'       :   'locked',
+                            'volume'    :   1
+                        }
+                    }
+                },
+                'mirror'    : {
+                    'area'      :   {'shape' : 'rect', 'coords' : '333,56,451,233', 'class' : 'action-examine'},
+                    'click'      :   {
+                        'text'    :   {
+                            'string'    :   'Lookin \'good'
+                        }
+                    }
                 }
             },
             'tracks'    : {
@@ -151,7 +171,8 @@ var adventure = {
         }
     },
     'sfx'   : {
-        'horse' :   {'src'  :   'horse.ogg'}
+        'horse'     :   {'src'  :   'horse.ogg'},
+        'locked'    :   {'src'  :   'locked.ogg'}
     },
     'tracks' : {
         'radio' :   {'src'  :   'radio.ogg'}
