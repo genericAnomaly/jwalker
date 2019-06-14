@@ -14,6 +14,7 @@ function start() {
     OverlayJinn.invoke();
     AudioJinn.invoke();
     RoomJinn.invoke();
+    LogicJinn.invoke();
 
     //Go to the first room of the Adventure
     InteractionJinn.clickHandler( {'data' : {'go' : adventure.meta.start} } );
@@ -30,8 +31,6 @@ function start() {
 class InteractionJinn {
     //Core Jinn: Core Jinn are invoked before peripheral Jinn. Generally, they should not directly act on a peripheral Jinn; rather, peripheral Jinn register their methods with core Jinn when they're first invoked
     //The primary function of this Jinn is to handle user input/interactions, and dispatch it to the correct Jinn
-
-    //Currently holding functionality for click.go, to be migrated out later.
 
     static invoke() {
         InteractionJinn.clickHandlers = {};
@@ -53,12 +52,13 @@ class InteractionJinn {
         }
     }
 
+    /*
     static actionGo(id) {
         AudioJinn.playTracks(adventure.rooms[id].tracks);
         var div = buildRoom(id);
         $('#room').empty().append(div);
         if (editorMode) editorLoadRoom(id);//adventure.rooms[id]);
-    }
+    } */
 
 }
 
@@ -314,6 +314,72 @@ class IOJinn {
 
 }
 
+class LogicJinn {
+    //The LogicJinn handles the flow of conditions and loops described in the adventure
+    //It provides the click.sequence and click.variable property
+
+    static invoke() {
+        InteractionJinn.register('sequence', LogicJinn.sequence);
+        InteractionJinn.register('set', LogicJinn.set);
+        InteractionJinn.register('condition', LogicJinn.condition);
+    }
+
+    static sequence(args) {
+        //if the index counter hasn't been initialised yet, initialise it.
+        if (('i' in args) == false) args.i = 0;
+
+        if (args.i < args.actions.length) {
+            var action = args.actions[args.i];
+            args.i ++;  //it is so wild to me that this works
+            //Forward the selected click to the InteractionJinn
+            InteractionJinn.clickHandler( {'data' : action} );
+        }
+        if (args.i >= args.actions.length && 'repeat' in args) {
+            if (args.repeat == "forever") args.i = 0;
+            if (args.repeat == "last") args.i = args.actions.length-1;
+        }
+
+    }
+
+    static set(args) {
+        var result = LogicJinn.evaluateExpression(args.value);
+        debug(result);
+        adventure.variables[args.variable] = result;
+    }
+
+    static condition(args) {
+        //Perform conditional logic
+        var satisfied = LogicJinn.evaluateExpression(args.if);
+        if (satisfied) {
+            var action = args.then;
+        } else {
+            var action = args.else;
+        }
+        InteractionJinn.clickHandler( {'data' : action} );
+    }
+
+
+
+
+    static evaluateExpression(expression) {
+
+        //If the expression is already a primitive, skip this and just return it
+        if (typeof expression !== 'string') return expression;
+
+        //Inject referenced values from adventure variable table
+        var pattern = /\$(\w+)/g;   //Pattern to find words prefixed by $
+        expression = expression.replace(pattern, function (match, varname) {
+            if (varname in adventure.variables) return adventure.variables[varname];
+            warn('Attempting to evaluate undeclared variable ' + match + '; using 0', args);
+            return 0;
+        });
+
+        //TODO: This should validate and parse out the math with regex and recursion.
+        //For now, we're gonna use eval; rationale: there is not yet a use case where the json provider couldn't already tamper with the js.
+        return eval(expression);
+    }
+
+}
 
 
 //Editor stuff pending being incorporated into a class
@@ -708,7 +774,7 @@ class Hotspot extends DisplayElement {
                 var vert = [this.verts[i].x, this.verts[i].y].join(',');
                 coords.push(vert);
             }
-            coords.join(',');
+            coords = coords.join(',');
         }
         return {'shape' : shape, 'coords' : coords};
     }
@@ -787,7 +853,17 @@ class HotspotProperties {
 
 
 
-
+function warn(string, object) {
+    //Editor mode function (destined for eventual editor jinn) used to warn the Adventure Author of non-fatal issues that appear to originate within the Adventure object
+    //Will output a console warning ONLY if debug mode is enabled
+    if (DEBUG) {
+        if (object !== undefined) {
+            console.warn(string, object);
+        } else {
+            console.warn(string);
+        }
+    }
+}
 
 function debug(object) {
     if (DEBUG) console.log(object);

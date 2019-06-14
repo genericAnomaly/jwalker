@@ -11,3 +11,53 @@ Configurable paths?
 function pathTo(resource) {
     //blahblahblah
 }
+
+
+
+
+
+
+//jlocker
+
+//Simple php servelet
+//Provides apache sandboxed file system access mediation for local js apps
+//(and potentially could also be run on a live server users must sign into and create a session on)
+
+{
+    "action"    :   "ls"
+    "args"      :   {
+        "path"  :   "path/to/directory/to/list"
+    }
+},
+{
+    "action"    :   "mkdir"
+    "args"      :   {
+        "path"  :   "path/to/directory/to/make"
+    }
+},
+{
+    "action"    :   "read"
+    "args"      :   {
+        "path"  :   "path/to/file/to/read"
+    }
+},
+{
+    "action"    :   "write"
+    "args"      :   {
+        "path"      :   "path/to/file/to/write"
+        "content"   :   "string to write to file"
+    }
+}
+
+
+//web-facing variant
+{
+    "action"    :   "login"
+    "args"      :   {
+        "un"    :   "username"
+        "pw"    :   "password"
+    }
+},
+{
+    "action"    :   "logout"
+}

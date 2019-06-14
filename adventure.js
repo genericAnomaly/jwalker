@@ -19,9 +19,43 @@ var adventure = {
                     'area'      :   {'shape' : 'rect', 'coords' : '577,187,695,434', 'class' : 'arrow-n'},
                     'click'     :   {'go' : 'outside'}
                 },
-                'horse'      :   {
-                    'area'      :   {'shape' : 'circle', 'coords' : '273,287,47', 'class' : 'action-examine'},
-                    'click'     :   {'sfx' :  {'key' : 'horse', 'volume' : 0.05} }
+                'light'     :   {
+                    'area'      :   {'shape' : 'circle', 'coords' : '720,90,35', 'class' : 'action-examine'},
+                    'click'     :   {
+                        'set'   :   {
+                            'variable'  :   'foo',
+                            'value'     :   '$foo + 1'
+                        }
+                    }
+                },
+                'horse'     :   {
+                    'area'      :   {'shape' : 'circle', 'coords' : '273,287,47', 'class' : 'action-hand'},
+                    'click'     :   {
+                        'sequence'  :   {
+                            'actions'    :   [
+                                {
+                                    'set'  : {'variable' : 'bar', 'value' : true},
+                                    'text' : {'string'    : '*CLICK*'}
+                                },
+                                {
+                                    'text' : {'string'    : 'It won\'t barge...'}
+                                }
+                            ],
+                            'repeat'    :   'last'
+                        }
+                    }
+                },
+                'painting'  :   {
+                    'area'      :   {'shape' : 'poly', 'coords' : '100,260,205,259,205,100,100,65', 'class' : 'action-examine'},
+                    'click'     :   {
+                        'sequence'  :   {
+                            'actions'    :   [
+                                {'sfx'  : {'key' : 'horse', 'volume' : 0.05}        },
+                                {'text' : {'string'    : 'The fun never stops.'}    }
+                            ],
+                            'repeat'    :   'forever'
+                        }
+                    }
                 }
             },
             'tracks'    : {
@@ -49,7 +83,23 @@ var adventure = {
                 },
                 'door-n'  :   {
                 	'area'      :   {'shape' : 'rect', 'coords' : '376,216,458,408', 'class' : 'arrow-n'},
-                	'click'     :   {'go' : 'outside'}
+                	'click'     :   {
+                        'condition' : {
+                            'if'    :   '($bar == true)',
+                            'then'  :   {
+                                'go'    :   'bathroom'
+                            },
+                            'else'  :   {
+                                'text'  :   {
+                                    'string'    :   '...locked.'
+                                },
+                                'sfx'   :   {
+                                    'key'       :   'locked',
+                                    'volume'    :   1
+                                }
+                            }
+                        }
+                    }
                 },
                 'backwards'  :   {
                 	'area'      :   {'shape' : 'rect', 'coords' : '0,550,488,600', 'class' : 'arrow-s'},
@@ -86,16 +136,51 @@ var adventure = {
                     'click'     :   {'go' : 'foyer'}
                 }
             }
+        },
+        'bathroom' :   {
+            'img'   :   'bathroom.png',
+            'map'   :   {
+                'back'  :   {
+                    'area'      :   {'shape' : 'rect', 'coords' : '0, 550, 800, 600', 'class' : 'arrow-s'},
+                    'click'     :   {'go' : 'upstairs'}
+                },
+                'door'  :   {
+                    'area'      :   {'shape' : 'poly', 'coords' : '638,21,694,0,780,0,721,539,612,473', 'class' : 'arrow-e'},
+                    'click'     :   {
+                        'text'  :   {
+                            'string'    :   '...locked.'
+                        },
+                        'sfx'   :   {
+                            'key'       :   'locked',
+                            'volume'    :   1
+                        }
+                    }
+                },
+                'mirror'    : {
+                    'area'      :   {'shape' : 'rect', 'coords' : '333,56,451,233', 'class' : 'action-examine'},
+                    'click'      :   {
+                        'text'    :   {
+                            'string'    :   'Lookin \'good'
+                        }
+                    }
+                }
+            },
+            'tracks'    : {
+                'radio' :   0.05
+            }
         }
     },
     'sfx'   : {
-        'horse' :   {'src'  :   'horse.ogg'}
+        'horse'     :   {'src'  :   'horse.ogg'},
+        'locked'    :   {'src'  :   'locked.ogg'}
     },
     'tracks' : {
         'radio' :   {'src'  :   'radio.ogg'}
     },
     'variables'     : {
         /*Reserved for further development, if the adventure needs to be able to store and check information about its state*/
+        'foo'   :   0,
+        'bar'   :   false
     }
 };
 
