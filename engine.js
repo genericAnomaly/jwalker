@@ -322,6 +322,9 @@ class LogicJinn {
         InteractionJinn.register('sequence', LogicJinn.sequence);
         InteractionJinn.register('set', LogicJinn.set);
         InteractionJinn.register('condition', LogicJinn.condition);
+
+
+        LogicJinn.evaluateExpression('1+2*(3*(2-1))');
     }
 
     static sequence(args) {
@@ -342,14 +345,14 @@ class LogicJinn {
     }
 
     static set(args) {
-        var result = LogicJinn.evaluateExpression(args.value);
+        var result = LogicJinn.evaluateExpression( LogicJinn.injectVariables(args.value) );
         debug(result);
         adventure.variables[args.variable] = result;
     }
 
     static condition(args) {
         //Perform conditional logic
-        var satisfied = LogicJinn.evaluateExpression(args.if);
+        var satisfied = LogicJinn.evaluateExpression( LogicJinn.injectVariables(args.if) );
         if (satisfied) {
             var action = args.then;
         } else {
@@ -360,12 +363,7 @@ class LogicJinn {
 
 
 
-
-    static evaluateExpression(expression) {
-
-        //If the expression is already a primitive, skip this and just return it
-        if (typeof expression !== 'string') return expression;
-
+    static injectVariables(expression) {
         //Inject referenced values from adventure variable table
         var pattern = /\$(\w+)/g;   //Pattern to find words prefixed by $
         expression = expression.replace(pattern, function (match, varname) {
@@ -373,6 +371,28 @@ class LogicJinn {
             warn('Attempting to evaluate undeclared variable ' + match + '; using 0', args);
             return 0;
         });
+        return expression;
+    }
+
+    static evaluateExpression(expression) {
+        console.log('evaluateExpression called on', expression);
+
+        //If the expression is already a primitive, skip this and just return it
+        if (typeof expression !== 'string') return expression;
+
+        //[P] Recursively evaluate parenthetical expressions
+        var pattern = /\(([0-9\*\+\-\/\^\(\)]*)\)/g;
+        expression = expression.replace(pattern, function(match, inner) {
+            return LogicJinn.evaluateExpression(inner);
+        });
+
+        //[E] Evaluate any exponents
+        pattern = /(\d+\.?\d*)\s*\^\s*(\-?\d+\.?\d*)/g;
+        expression = expression.replace(pattern, function(match, base, exponent) {
+            base = Math.parseFloat(base);
+            exponent = Math.parseFloat(exponent);
+            return Math.pow(base, exponent);
+        }
 
         //TODO: This should validate and parse out the math with regex and recursion.
         //For now, we're gonna use eval; rationale: there is not yet a use case where the json provider couldn't already tamper with the js.
