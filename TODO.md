@@ -9,13 +9,12 @@
 ## Todo
 * README.md could use some words.
 * Coding practices
+	* make sure all Jinn provided functions are checking their arguments and returning useful warn/error messages
+		* This is a big one in terms of author utility
 	* Define resource paths in meta for stuff like demo/img
 	* Resource preloading
 	* Finish despaghettification:
-		* Need a high-level class for pseudo-globals currently living in ``window``, namely ``var adventure`` and ``function start()``
-	* LogicJinn.evaluateExpression needs a safe implementation for mathematical evaluation
-		* There are libraries, but they're locked behind understanding the node.js workflow
-	* Add room exists check to ``go``, make sure all Jinn provided functions are checking their arguments and returning useful warn/error messages
+		* Need a high-level class (probably a core Jinn) for keeping track of pseudo-globals currently living in ``window``, namely ``var adventure`` and ``function start()``
 * InteractionJinn
 	* Ability to define events other than clicks
 		* sounds that trigger the first time you enter the room but not ever again (thinking here, voiceover work?)
@@ -32,6 +31,7 @@
 	* Clean up text to use <textarea> if that's supported yet
 * RoomJinn
 	* Rename to NavigationJinn
+	* Add room exists check to ``go``
 	* ``backtrack`` action
 		* Either a ``back`` action or a parameter for ``go``
 		* add it to RoomJinn / NavigationJinn, have it keep a stack of ``go``s
@@ -40,6 +40,9 @@
 		* Action availability should be configurable globally too
 	* Presentational sugar
 		* "dissolve" transition between screens using [mask](https://developer.mozilla.org/en-US/docs/Web/CSS/mask) and [mask-image](https://developer.mozilla.org/en-US/docs/Web/CSS/mask-image)
+* LogicJinn
+	* We will need to either implement or (more likely) adopt a pre-existing library for mathematical evaluation.
+		* There are libraries, but they're somewhat locked behind understanding the node.js workflow
 
 ## Reevaluate
 * a dedicated back button that sends you back to the previous place you were, since it turns out it's hard to find pictures with at least one entrance and exit in-photo
