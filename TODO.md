@@ -43,6 +43,7 @@
 * LogicJinn
 	* We will need to either implement or (more likely) adopt a pre-existing library for mathematical evaluation.
 		* There are libraries, but they're somewhat locked behind understanding the node.js workflow
+* Room states
 
 ## Reevaluate
 * a dedicated back button that sends you back to the previous place you were, since it turns out it's hard to find pictures with at least one entrance and exit in-photo
