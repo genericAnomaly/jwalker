@@ -74,6 +74,27 @@
                             "type"          :   "string"
                         }
                     }
+                },
+                "condition" :   {
+                    "description"   :   "Define different actions to be executed based on the evaluation of conditional logic.",
+                    "type"          :   "object",
+                    "required"      :   ["if", "then"],
+                    "properties"    :   {
+                        "if"    :   {
+                            "description"   :   "A statement that will evaluate to true or false. May reference global adventure variables by prefixing the variable's name with a $ character",
+                            "type"          :   "string"
+                        },
+                        "then"  :   {
+                            "description"   :   "Actions to be performed if the conditions described by 'if' are satisfied.",
+                            "type"          :   "object",
+                            "$ref"          :   "#/definitions/action"
+                        },
+                        "else"  :   {
+                            "description"   :   "Actions to be performed if the conditions described by 'if' are not satisfied.",
+                            "type"          :   "object",
+                            "$ref"          :   "#/definitions/action"
+                        }
+                    }
                 }
             }
         }
@@ -219,7 +240,7 @@
             }
         },
         "variables" :   {
-            "description"   :   "Reserved for further development, if the adventure needs to be able to store and check information about its state",
+            "description"   :   "You may define arbitrary variables here that may then be accessed and modified by certain actions during play.",
             "type"          :   "object"
         }
     }
