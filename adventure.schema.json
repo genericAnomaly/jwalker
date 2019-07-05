@@ -1,6 +1,6 @@
 {
     "$schema"       :   "http://json-schema.org/draft-07/schema#",
-    "$id"           :   "https://raw.githubusercontent.com/genericAnomaly/jwalker/soundscape-foundation/adventure.schema.json",
+    "$id"           :   "https://raw.githubusercontent.com/genericAnomaly/jwalker/master/adventure.schema.json",
     "definitions"   :   {
         "action" :   {
             "description"   :   "Defines action(s) to take when this hotspot is clicked",
@@ -72,6 +72,27 @@
                         "value"  :   {
                             "description"   :   "The value to assign to the variable. This may be a mathematical expression, and may reference global adventure variables (including the one being assigned) by prefixing the variable's name with a $ character.",
                             "type"          :   "string"
+                        }
+                    }
+                },
+                "condition" :   {
+                    "description"   :   "Define different actions to be executed based on the evaluation of conditional logic.",
+                    "type"          :   "object",
+                    "required"      :   ["if", "then"],
+                    "properties"    :   {
+                        "if"    :   {
+                            "description"   :   "A statement that will evaluate to true or false. May reference global adventure variables by prefixing the variable's name with a $ character",
+                            "type"          :   "string"
+                        },
+                        "then"  :   {
+                            "description"   :   "Actions to be performed if the conditions described by 'if' are satisfied.",
+                            "type"          :   "object",
+                            "$ref"          :   "#/definitions/action"
+                        },
+                        "else"  :   {
+                            "description"   :   "Actions to be performed if the conditions described by 'if' are not satisfied.",
+                            "type"          :   "object",
+                            "$ref"          :   "#/definitions/action"
                         }
                     }
                 }
@@ -219,8 +240,14 @@
             }
         },
         "variables" :   {
-            "description"   :   "Reserved for further development, if the adventure needs to be able to store and check information about its state",
-            "type"          :   "object"
+            "description"       :   "You may define arbitrary variables here that may then be accessed and modified by certain actions during play.",
+            "type"              :   "object",
+            "patternProperties" :   {
+                "\\w+"  :   {
+                    "description"   :   "An adventure variable",
+                    "type"          :   "string"
+                }
+            }
         }
     }
 }
