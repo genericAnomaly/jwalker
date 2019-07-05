@@ -71,7 +71,7 @@
                         },
                         "value"  :   {
                             "description"   :   "The value to assign to the variable. This may be a mathematical expression, and may reference global adventure variables (including the one being assigned) by prefixing the variable's name with a $ character.",
-                            "type"          :   ["string", "number", "boolean"]
+                            "type"          :   "string"
                         }
                     }
                 },
@@ -240,8 +240,14 @@
             }
         },
         "variables" :   {
-            "description"   :   "You may define arbitrary variables here that may then be accessed and modified by certain actions during play.",
-            "type"          :   "object"
+            "description"       :   "You may define arbitrary variables here that may then be accessed and modified by certain actions during play.",
+            "type"              :   "object",
+            "patternProperties" :   {
+                "\\w+"  :   {
+                    "description"   :   "An adventure variable",
+                    "type"          :   "string"
+                }
+            }
         }
     }
 }
