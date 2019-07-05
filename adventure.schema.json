@@ -1,6 +1,6 @@
 {
     "$schema"       :   "http://json-schema.org/draft-07/schema#",
-    "$id"           :   "https://raw.githubusercontent.com/genericAnomaly/jwalker/soundscape-foundation/adventure.schema.json",
+    "$id"           :   "https://raw.githubusercontent.com/genericAnomaly/jwalker/master/adventure.schema.json",
     "definitions"   :   {
         "action" :   {
             "description"   :   "Defines action(s) to take when this hotspot is clicked",
@@ -71,7 +71,7 @@
                         },
                         "value"  :   {
                             "description"   :   "The value to assign to the variable. This may be a mathematical expression, and may reference global adventure variables (including the one being assigned) by prefixing the variable's name with a $ character.",
-                            "type"          :   "string"
+                            "type"          :   ["string", "number", "boolean"]
                         }
                     }
                 },
